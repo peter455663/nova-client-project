@@ -27,7 +27,7 @@ import java.util.Locale;
 public final class NovaClient implements ClientModInitializer {
     public static final String MOD_ID="nova";
     public static final Logger LOGGER=LoggerFactory.getLogger(MOD_ID);
-    private static KeyMapping openGuiKey, autoToolKey, entityRadarKey;
+    private static KeyMapping openGuiKey, autoToolKey, entityRadarKey, minimapKey, targetHudKey;
     private static boolean previousAttackDown;
     private static final Deque<Long> ATTACK_CLICKS=new ArrayDeque<>();
 
@@ -40,10 +40,16 @@ public final class NovaClient implements ClientModInitializer {
                 InputConstants.Type.KEYBOARD,InputConstants.KEY_R,category));
         entityRadarKey=KeyMappingHelper.registerKeyMapping(new KeyMapping("key.nova.toggle_entity_radar",
                 InputConstants.Type.KEYBOARD,InputConstants.KEY_J,category));
+        minimapKey=KeyMappingHelper.registerKeyMapping(new KeyMapping("key.nova.toggle_minimap",
+                InputConstants.Type.KEYBOARD,InputConstants.KEY_K,category));
+        targetHudKey=KeyMappingHelper.registerKeyMapping(new KeyMapping("key.nova.toggle_target_hud",
+                InputConstants.Type.KEYBOARD,InputConstants.KEY_T,category));
         ClientTickEvents.END_CLIENT_TICK.register(client->{
             while(openGuiKey.consumeClick()) client.gui.setScreen(new NovaClickGuiScreen());
             while(autoToolKey.consumeClick()){NovaConfig.autoTool=!NovaConfig.autoTool;NovaConfig.save();}
             while(entityRadarKey.consumeClick()){NovaConfig.showEntityRadar=!NovaConfig.showEntityRadar;NovaConfig.save();}
+            while(minimapKey.consumeClick()){NovaConfig.showMinimap=!NovaConfig.showMinimap;NovaConfig.save();}
+            while(targetHudKey.consumeClick()){NovaConfig.showTargetHud=!NovaConfig.showTargetHud;NovaConfig.save();}
             if(client.player!=null && NovaConfig.toggleSprint && client.options.keyUp.isDown()) client.options.keySprint.setDown(true);
             boolean attackDown=client.options.keyAttack.isDown();
             if(attackDown && !previousAttackDown) ATTACK_CLICKS.addLast(System.currentTimeMillis());
@@ -54,14 +60,14 @@ public final class NovaClient implements ClientModInitializer {
         });
         HudElementRegistry.attachElementBefore(VanillaHudElements.CHAT,
                 Identifier.fromNamespaceAndPath(MOD_ID,"utility_hud"),NovaClient::renderHud);
-        LOGGER.info("Nova Utility Client 0.5.0 initialized. Right Alt opens the menu; R toggles Auto Tool; J toggles Entity Radar.");
+        LOGGER.info("Nova Utility Client 0.7.0 initialized. Right Alt opens the menu; R Auto Tool; J Radar; K Minimap; T Target HUD.");
     }
 
     private static void renderHud(GuiGraphicsExtractor graphics,DeltaTracker deltaTracker) {
         Minecraft client=Minecraft.getInstance();
         if(client.player==null || client.level==null) return;
         List<String> rows=new ArrayList<>();
-        if(NovaConfig.showWatermark) rows.add("NOVA  /  UTILITY  0.6.0");
+        if(NovaConfig.showWatermark) rows.add("NOVA  /  UTILITY  0.7.0");
         if(NovaConfig.showCoordinates) rows.add(String.format(Locale.ROOT,"XYZ  %.1f  %.1f  %.1f",client.player.getX(),client.player.getY(),client.player.getZ()));
         if(NovaConfig.showFps) rows.add("FPS  "+client.getFps());
         if(NovaConfig.showDirection) rows.add("FACING  "+client.player.getDirection().getName().toUpperCase(Locale.ROOT));
