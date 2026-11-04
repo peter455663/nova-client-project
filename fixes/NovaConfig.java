@@ -22,15 +22,15 @@ public final class NovaConfig {
     public static boolean hasWaypoint, hasBuildAnchor;
     public static double waypointX, waypointY, waypointZ;
     public static int buildX, buildY, buildZ;
-    public static String buildTemplate="cabin", profileName="Custom";
+    public static String buildTemplate="starter_house", profileName="Custom", language="hu";
 
     private NovaConfig() {}
 
     public static void load() {
         if (!Files.exists(FILE)) { save(); return; }
-        Properties p=new Properties();
+        Properties p=new Properties();\n        p.setProperty("language",language);
         try (Reader reader=Files.newBufferedReader(FILE)) {
-            p.load(reader);
+            p.load(reader);\n            language=p.getProperty("language",language);\n            NovaLanguage.load(language);
             showWatermark=bool(p,"hud.watermark",showWatermark); showCoordinates=bool(p,"hud.coordinates",showCoordinates);
             showFps=bool(p,"hud.fps",showFps); showDirection=bool(p,"hud.direction",showDirection); showBiome=bool(p,"hud.biome",showBiome);
             showKeystrokes=bool(p,"hud.keystrokes",showKeystrokes); showCps=bool(p,"hud.cps",showCps); showArmor=bool(p,"hud.armor",showArmor);

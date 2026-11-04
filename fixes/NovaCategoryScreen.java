@@ -11,7 +11,7 @@ import java.util.function.Supplier;
 
 /** Independent module windows launched from the Nova ClickGUI. */
 public final class NovaCategoryScreen extends Screen {
-    public enum Category { HUD,VISUALS,MOVEMENT,PLAYER,WORLD,BUILDING,FARMING,MINING,MISC,PROFILES,SETTINGS,OP_ONLY }
+    public enum Category { HUD,VISUALS,MOVEMENT,PLAYER,WORLD,BUILDING,FARMING,MINING,MISC,PROFILES,SETTINGS,OP_ONLY,STRUCTURES }
     private static final int PANEL_WIDTH=470,DEFAULT_PANEL_HEIGHT=520,OP_PANEL_HEIGHT=660;
     private final Category category;
     private final int panelHeight;
@@ -81,10 +81,27 @@ public final class NovaCategoryScreen extends Screen {
             }
             case BUILDING->{
                 toggle("Építési segéd HUD",()->NovaConfig.showBuildGuide,()->NovaConfig.showBuildGuide=!NovaConfig.showBuildGuide);
-                action("Építési pont beállítása",()->NovaConfig.hasBuildAnchor?"SAVED":"NOT SET",NovaCategoryScreen::saveBuildAnchor);
+                action("Építési pont mentése itt",()->NovaConfig.hasBuildAnchor?"MENTVE":"NINCS",NovaCategoryScreen::saveBuildAnchor);
+                action("Építés szüneteltetése",NovaAutomation::getBuildStatus,NovaAutomation::pauseBuild);
+                action("Építés folytatása",NovaAutomation::getBuildStatus,NovaAutomation::resumeBuild);
+                action("Építés megszakítása",NovaAutomation::getBuildStatus,NovaAutomation::cancelBuild);
+                for(String blueprint:NovaBlueprints.HOUSES)
+                    action(NovaBlueprints.displayName(blueprint),NovaAutomation::getBuildStatus,
+                            ()->NovaAutomation.startBuild(blueprint,Minecraft.getInstance()));
             }
             case FARMING->{
                 toggle("Érett növények automatikus aratása",()->NovaConfig.autoFarm,()->NovaConfig.autoFarm=!NovaConfig.autoFarm);
+                for(String blueprint:NovaBlueprints.FARMS)
+                    action(NovaBlueprints.displayName(blueprint),NovaAutomation::getBuildStatus,
+                            ()->NovaAutomation.startBuild(blueprint,Minecraft.getInstance()));
+            }
+            case STRUCTURES->{
+                for(String blueprint:NovaBlueprints.STRUCTURES)
+                    action(NovaBlueprints.displayName(blueprint),NovaAutomation::getBuildStatus,
+                            ()->NovaAutomation.startBuild(blueprint,Minecraft.getInstance()));
+                action("Építés szüneteltetése",NovaAutomation::getBuildStatus,NovaAutomation::pauseBuild);
+                action("Építés folytatása",NovaAutomation::getBuildStatus,NovaAutomation::resumeBuild);
+                action("Építés megszakítása",NovaAutomation::getBuildStatus,NovaAutomation::cancelBuild);
             }
             case MINING->{
                 toggle("Célzott blokk automatikus bányászata",()->NovaConfig.autoMine,()->NovaConfig.autoMine=!NovaConfig.autoMine);
@@ -100,6 +117,7 @@ public final class NovaCategoryScreen extends Screen {
             case SETTINGS->{
                 toggle("Világos téma",()->NovaConfig.lightTheme,()->NovaConfig.lightTheme=!NovaConfig.lightTheme);
                 action("Kiemelőszín",NovaConfig::accentName,NovaConfig::cycleAccent);
+                action("Nyelv / Language",()->NovaLanguage.code().equals("hu")?"Magyar":"English",NovaLanguage::toggle);
             }
             case OP_ONLY->{
                 action("Kreatív mód",()->"OP",()->NovaAutomation.runAdminAction("creative",Minecraft.getInstance()));
@@ -135,7 +153,7 @@ public final class NovaCategoryScreen extends Screen {
 
     private void toggle(String name,Supplier<Boolean> get,Runnable action){controls.add(new Control(name,()->get.get()?"ON":"OFF",action));}
     private void action(String name,Supplier<String> state,Runnable action){controls.add(new Control(name,state,action));}
-    private Component label(Control c){String state=c.state.get();if(state.length()>21)state=state.substring(0,18)+"...";return Component.literal(c.name+"  ·  "+state);}
+    private Component label(Control c){String state=c.state.get();if(state.length()>21)state=state.substring(0,18)+"...";return Component.literal(NovaLanguage.tr(c.name)+"  ·  "+NovaLanguage.tr(state));}
     private void refreshLabels(){for(int i=0;i<controls.size();i++)buttons.get(i).setMessage(label(controls.get(i)));}
 
     private static void saveWaypoint(){
@@ -177,7 +195,7 @@ public final class NovaCategoryScreen extends Screen {
             case MISC->"Anti-AFK performs a small view adjustment every 55 seconds.";
             case PROFILES->"Apply a preset set of HUD and utility options.";
             case SETTINGS->"Change the menu appearance, accent color and save preferences.";
-            case OP_ONLY->"OP ONLY: commands and structure builds need operator permission; servers can reject them.";
+            case OP_ONLY->"OP ONLY: commands and structure builds need operator permission; servers can reject them.";\n            case STRUCTURES->"Előre elkészített építmények és infrastruktúra-sablonok.";\n            case STRUCTURES->"Előre elkészített építmények és infrastruktúra-sablonok.";
         };
     }
     @Override public void onClose(){this.minecraft.gui.setScreen(new NovaClickGuiScreen());}

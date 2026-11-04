@@ -11,11 +11,11 @@ import net.minecraft.network.chat.Component;
  */
 public final class NovaClickGuiScreen extends Screen {
     private static final int PANEL_WIDTH = 720;
-    private static final int PANEL_HEIGHT = 452;
+    private static final int PANEL_HEIGHT = 470;
     private static final String[] LABELS = {
             "HUD / KÉPERNYŐ", "VIZUÁLIS", "MOZGÁS", "JÁTÉKOS",
             "VILÁG", "ÉPÍTÉS", "FARMOLÁS", "BÁNYÁSZAT",
-            "ESZKÖZÖK", "PROFILOK", "BEÁLLÍTÁSOK", "OP PARANCSOK"
+            "ESZKÖZÖK", "PROFILOK", "BEÁLLÍTÁSOK", "OP PARANCSOK", "ÉPÍTMÉNYEK"
     };
     private static final String[] SUBTITLES = {
             "Kijelzők és információs elemek", "Radar, waypoint és minimap",
@@ -23,7 +23,7 @@ public final class NovaClickGuiScreen extends Screen {
             "Világadatok és környezet", "Építési segéd és sablonok",
             "Növénytermesztési automatizmusok", "Bányászati segédek",
             "Kényelmi funkciók", "Mentett konfigurációk",
-            "Megjelenés és Nova beállítások", "Szerver által engedélyezett parancsok"
+            "Megjelenés és Nova beállítások", "Szerver által engedélyezett parancsok", "Külső építmények és infrastruktúra"
     };
     private static final NovaCategoryScreen.Category[] CATEGORIES =
             NovaCategoryScreen.Category.values();
@@ -38,11 +38,11 @@ public final class NovaClickGuiScreen extends Screen {
         int left = (width - PANEL_WIDTH) / 2;
         int top = (height - PANEL_HEIGHT) / 2;
         int gridX = left + 26;
-        int gridY = top + 112;
+        int gridY = top + 104;
         int cardW = 205;
-        int cardH = 43;
+        int cardH = 39;
         int gapX = 12;
-        int gapY = 10;
+        int gapY = 8;
 
         for (int i = 0; i < LABELS.length; i++) {
             final NovaCategoryScreen.Category category = CATEGORIES[i];
@@ -50,7 +50,7 @@ public final class NovaClickGuiScreen extends Screen {
             int row = i / 3;
             int x = gridX + col * (cardW + gapX);
             int y = gridY + row * (cardH + gapY);
-            addRenderableWidget(Button.builder(Component.literal(LABELS[i] + "   ›"),
+            addRenderableWidget(Button.builder(Component.literal(NovaLanguage.tr(LABELS[i]) + "   ›"),
                     button -> this.minecraft.gui.setScreen(new NovaCategoryScreen(category)))
                     .bounds(x, y, cardW, cardH).build());
         }
@@ -96,25 +96,25 @@ public final class NovaClickGuiScreen extends Screen {
             int col = i % 3;
             int row = i / 3;
             int x = left + 26 + col * 217;
-            int y = top + 112 + row * 53;
-            boolean hovered = mouseX >= x && mouseX <= x + 205 && mouseY >= y && mouseY <= y + 43;
-            g.fill(x, y, x + 205, y + 43, hovered ? surfaceAlt : surface);
+            int y = top + 104 + row * 47;
+            boolean hovered = mouseX >= x && mouseX <= x + 205 && mouseY >= y && mouseY <= y + 39;
+            g.fill(x, y, x + 205, y + 39, hovered ? surfaceAlt : surface);
             g.fill(x, y, x + 3, y + 43, i == 0 ? accent : (hovered ? accent : 0xFF343D50));
-            g.text(font, LABELS[i], x + 13, y + 8, primary, true);
+            g.text(font, NovaLanguage.tr(LABELS[i]), x + 13, y + 8, primary, true);
             g.text(font, SUBTITLES[i], x + 13, y + 24, secondary, false);
         }
 
         // Bottom information strip
-        int stripY = top + 335;
-        g.fill(left + 26, stripY, right - 26, stripY + 66, surface);
-        g.text(font, "GYORS ÁLLAPOT", left + 40, stripY + 12, accent, true);
-        g.text(font, "Minimap  " + state(NovaConfig.showMinimap)
-                + "     Entity radar  " + state(NovaConfig.showEntityRadar)
-                + "     Auto Tool  " + state(NovaConfig.autoTool),
+        int stripY = top + 346;
+        g.fill(left + 26, stripY, right - 26, stripY + 58, surface);
+        g.text(font, NovaLanguage.tr("GYORS ÁLLAPOT"), left + 40, stripY + 12, accent, true);
+        g.text(font, "Minimap  " + NovaLanguage.tr(state(NovaConfig.showMinimap))
+                + "     Entity radar  " + NovaLanguage.tr(state(NovaConfig.showEntityRadar))
+                + "     Auto Tool  " + NovaLanguage.tr(state(NovaConfig.autoTool)),
                 left + 40, stripY + 30, primary, false);
-        g.text(font, "FPS HUD  " + state(NovaConfig.showFps)
-                + "     Koordináták  " + state(NovaConfig.showCoordinates)
-                + "     Waypoint  " + state(NovaConfig.hasWaypoint),
+        g.text(font, "FPS HUD  " + NovaLanguage.tr(state(NovaConfig.showFps))
+                + "     Koordináták  " + NovaLanguage.tr(state(NovaConfig.showCoordinates))
+                + "     Waypoint  " + NovaLanguage.tr(state(NovaConfig.hasWaypoint)),
                 left + 40, stripY + 46, secondary, false);
 
         g.text(font, "RIGHT ALT  ·  MENÜ", left + 27, bottom - 30, secondary, false);

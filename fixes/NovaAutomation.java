@@ -24,7 +24,7 @@ public final class NovaAutomation {
     private static boolean wasHoldingAttack;
     private static int autoToolOriginalSlot=-1;
     private static boolean autoToolChangedSlot;
-    private static String buildStatus="Idle";
+    private static String buildStatus="Idle";\n    private static int buildTotal, buildSent;\n    private static boolean buildPaused;
     private static String adminStatus="No admin command sent";
     private static Double originalGamma;
 
@@ -73,19 +73,21 @@ public final class NovaAutomation {
             if(ADMIN_COMMANDS.isEmpty()) adminStatus="Commands sent; server feedback confirms permissions";
         }
 
-        if(!BUILD_COMMANDS.isEmpty() && tickCounter%5==0) {
+        if(!BUILD_COMMANDS.isEmpty() && !buildPaused && tickCounter%5==0) {
             String command=BUILD_COMMANDS.pollFirst();
             if(command!=null) {
                 try {
                     mc.getConnection().sendCommand(command);
-                    buildStatus="Building: "+BUILD_COMMANDS.size()+" commands left";
+                    buildSent++;
+                    buildStatus="Építés: "+getBuildProgress()+"% · "+BUILD_COMMANDS.size()+" parancs hátra";
                 } catch(RuntimeException ex) {
                     BUILD_COMMANDS.clear();
-                    buildStatus="Could not send build command";
+                    buildPaused=false;
+                    buildStatus="Build failed while sending a command";
                     NovaClient.LOGGER.error("Nova build command failed",ex);
                 }
             }
-            if(BUILD_COMMANDS.isEmpty() && buildStatus.startsWith("Building:")) buildStatus="Build commands sent; check server feedback";
+            if(BUILD_COMMANDS.isEmpty() && !buildPaused) buildStatus="Build command queue sent; server feedback determines success";
         }
     }
 
@@ -208,26 +210,62 @@ public final class NovaAutomation {
             return;
         }
         String selected=switch(template) {
-            case "cottage" -> "cottage";
-            case "modern" -> "modern";
-            case "watchtower" -> "watchtower";
-            default -> "cabin";
+            case "cabin" -> "wooden_survival_house";
+            case "cottage" -> "farmhouse";
+            case "modern" -> "modern_house";
+            default -> template;
         };
-        BlockPos p=mc.player.blockPosition();
-        int x=p.getX(), y=p.getY(), z=p.getZ()+2;
-        BUILD_COMMANDS.addAll(makeHouseCommands(selected,x,y,z));
+        if(!NovaBlueprints.HOUSES.contains(selected)
+                && !NovaBlueprints.FARMS.contains(selected)
+                && !NovaBlueprints.STRUCTURES.contains(selected)) {
+            buildStatus="Unknown blueprint: "+selected;
+            return;
+        }
+        int x,y,z;
+        if(NovaConfig.hasBuildAnchor) {
+            x=NovaConfig.buildX; y=NovaConfig.buildY; z=NovaConfig.buildZ;
+        } else {
+            BlockPos p=mc.player.blockPosition();
+            x=p.getX(); y=p.getY(); z=p.getZ()+2;
+        }
+        List<String> commands=NovaBlueprints.commands(selected,x,y,z);
+        BUILD_COMMANDS.addAll(commands);
+        buildTotal=commands.size();
+        buildSent=0;
+        buildPaused=false;
         NovaConfig.buildX=x; NovaConfig.buildY=y; NovaConfig.buildZ=z;
         NovaConfig.hasBuildAnchor=true; NovaConfig.buildTemplate=selected; NovaConfig.showBuildGuide=true; NovaConfig.save();
-        buildStatus="Queued "+BUILD_COMMANDS.size()+" commands; requires OP";
+        buildStatus="Queued "+buildTotal+" commands; requires operator permission";
+    }
+
+    public static void pauseBuild() {
+        if(!BUILD_COMMANDS.isEmpty()) {
+            buildPaused=true;
+            buildStatus="Build paused at "+getBuildProgress()+"%";
+        }
+    }
+
+    public static void resumeBuild() {
+        if(!BUILD_COMMANDS.isEmpty()) {
+            buildPaused=false;
+            buildStatus="Build resumed at "+getBuildProgress()+"%";
+        }
     }
 
     public static void cancelBuild() {
         BUILD_COMMANDS.clear();
+        buildPaused=false;
+        buildTotal=0;
+        buildSent=0;
         buildStatus="Build cancelled";
     }
 
-    public static String getBuildStatus() { return buildStatus; }
+    public static String getBuildStatus() { return buildPaused ? "Paused · "+getBuildProgress()+"%" : buildStatus; }
     public static int getQueuedBuildCommands() { return BUILD_COMMANDS.size(); }
+    public static int getBuildProgress() {
+        if(buildTotal<=0) return 0;
+        return Math.max(0,Math.min(100,(int)((buildSent*100L)/buildTotal)));
+    }
 
     private static List<String> makeHouseCommands(String template,int x,int y,int z) {
         List<String> c=new ArrayList<>();
