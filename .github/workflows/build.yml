@@ -6,6 +6,7 @@ on:
     paths:
       - '.github/workflows/build.yml'
       - 'Nova-Utility-Client-0.2.0-source.zip'
+      - 'fixes/**'
   workflow_dispatch:
 
 permissions:
@@ -18,7 +19,7 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
-      - name: Extract source project
+      - name: Extract source project and apply Nova 0.3.0 sources
         run: |
           mkdir source
           unzip -q Nova-Utility-Client-0.2.0-source.zip -d source
@@ -26,8 +27,11 @@ jobs:
           test -d "$PROJECT_DIR/src/client/java/hu/peter/nova"
           cp fixes/NovaClient.java "$PROJECT_DIR/src/client/java/hu/peter/nova/NovaClient.java"
           cp fixes/NovaClickGuiScreen.java "$PROJECT_DIR/src/client/java/hu/peter/nova/NovaClickGuiScreen.java"
-          echo "Extracted project files and applied the checked-in 26.3 compatibility fixes:"
-          find source -maxdepth 4 -type f | sort | head -200
+          cp fixes/NovaConfig.java "$PROJECT_DIR/src/client/java/hu/peter/nova/NovaConfig.java"
+          cp fixes/NovaCategoryScreen.java "$PROJECT_DIR/src/client/java/hu/peter/nova/NovaCategoryScreen.java"
+          sed -i 's/^mod_version=0.2.0$/mod_version=0.3.0/' "$PROJECT_DIR/gradle.properties"
+          echo "Applied Nova 0.3.0 sources:"
+          find "$PROJECT_DIR/src/client/java/hu/peter/nova" -maxdepth 1 -type f -printf '%f\n' | sort
 
       - name: Set up Java 25
         uses: actions/setup-java@v4
@@ -43,12 +47,7 @@ jobs:
       - name: Build Fabric mod
         shell: bash
         run: |
-          PROJECT_DIR="$(find source -type f \( -name settings.gradle -o -name settings.gradle.kts -o -name build.gradle -o -name build.gradle.kts \) -printf '%h\n' | sort -u | head -1)"
-          if [ -z "$PROJECT_DIR" ]; then
-            echo "Could not find Gradle project files in the ZIP."
-            exit 1
-          fi
-          echo "Building project in: $PROJECT_DIR"
+          PROJECT_DIR="source/NovaUtilityClient-26.3"
           cd "$PROJECT_DIR"
           if [ -f ./gradlew ]; then
             chmod +x ./gradlew
@@ -60,7 +59,7 @@ jobs:
       - name: Upload JAR
         uses: actions/upload-artifact@v4
         with:
-          name: Nova-Utility-Client-JAR
-          path: source/**/build/libs/*.jar
+          name: Nova-Utility-Client-0.3.0-JAR
+          path: source/NovaUtilityClient-26.3/build/libs/*.jar
           if-no-files-found: error
           retention-days: 14
