@@ -100,7 +100,7 @@ public final class NovaClient implements ClientModInitializer {
             } else rows.add("TOOL  "+stack.getHoverName().getString());
         }
         if(NovaConfig.showWorldTime) {
-            long dayTime=Math.floorMod(client.level.getDayTime(),24000L);
+            long dayTime=Math.floorMod(client.level.getDefaultClockTime(),24000L);
             int hour=(int)(((dayTime+6000L)%24000L)*24L/24000L);
             int minute=(int)(((dayTime+6000L)%24000L)*60L/1000L)%60;
             rows.add(String.format(Locale.ROOT,"WORLD TIME  %02d:%02d",hour,minute));
