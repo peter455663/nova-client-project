@@ -12,13 +12,13 @@ import java.util.function.Supplier;
 /** Independent module windows launched from the Nova ClickGUI. */
 public final class NovaCategoryScreen extends Screen {
     public enum Category { HUD,VISUALS,MOVEMENT,PLAYER,WORLD,BUILDING,FARMING,MINING,MISC,PROFILES,SETTINGS,OP_ONLY }
-    private static final int PANEL_WIDTH=470,DEFAULT_panelHeight=520,OP_panelHeight=660;
+    private static final int PANEL_WIDTH=470,DEFAULT_PANEL_HEIGHT=520,OP_PANEL_HEIGHT=660;
     private final Category category;
     private final int panelHeight;
     private final List<Control> controls=new ArrayList<>();
     private final List<Button> buttons=new ArrayList<>();
 
-    public NovaCategoryScreen(Category category){super(Component.literal("Nova "+category.name()));this.category=category;this.panelHeight=category==Category.OP_ONLY?OP_panelHeight:DEFAULT_panelHeight;}
+    public NovaCategoryScreen(Category category){super(Component.literal("Nova "+category.name()));this.category=category;this.panelHeight=category==Category.OP_ONLY?OP_PANEL_HEIGHT:DEFAULT_PANEL_HEIGHT;}
 
     @Override protected void init(){
         controls.clear();buttons.clear();buildControls();
