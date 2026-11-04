@@ -16,6 +16,7 @@ public final class NovaConfig {
     public static boolean showTargetBlock, showChunkInfo, showWaypoint=true, showBuildGuide, showToolInfo;
     public static boolean showWorldTime, showWeather, showEntityCount, showPing;
     public static boolean toggleSprint, lightTheme, autoMine, autoFarm, antiAfk, showEntityRadar, autoTool;
+    public static boolean showMinimap, showTargetHud, showChunkBorders, maxBrightness;
     public static int entityRadarRange=24, accentColorIndex=0;
     public static boolean hasWaypoint, hasBuildAnchor;
     public static double waypointX, waypointY, waypointZ;
@@ -41,6 +42,8 @@ public final class NovaConfig {
             autoMine=bool(p,"mining.auto",autoMine); autoFarm=bool(p,"farming.auto",autoFarm); antiAfk=bool(p,"misc.anti_afk",antiAfk);
             showEntityRadar=bool(p,"world.entity_radar",showEntityRadar); entityRadarRange=Math.max(8,Math.min(64,integer(p,"world.entity_radar_range",entityRadarRange)));
             autoTool=bool(p,"player.auto_tool",autoTool); accentColorIndex=Math.floorMod(integer(p,"settings.accent_color",accentColorIndex),5);
+            showMinimap=bool(p,"visuals.minimap",showMinimap); showTargetHud=bool(p,"hud.target",showTargetHud);
+            showChunkBorders=bool(p,"world.chunk_borders",showChunkBorders); maxBrightness=bool(p,"visuals.max_brightness",maxBrightness);
             lightTheme=bool(p,"settings.light_theme",lightTheme); hasWaypoint=bool(p,"waypoint.saved",hasWaypoint);
             waypointX=decimal(p,"waypoint.x",0); waypointY=decimal(p,"waypoint.y",0); waypointZ=decimal(p,"waypoint.z",0);
             hasBuildAnchor=bool(p,"building.anchor_saved",hasBuildAnchor);
@@ -64,6 +67,8 @@ public final class NovaConfig {
         p.setProperty("misc.anti_afk",Boolean.toString(antiAfk)); p.setProperty("settings.light_theme",Boolean.toString(lightTheme));
         p.setProperty("world.entity_radar",Boolean.toString(showEntityRadar)); p.setProperty("world.entity_radar_range",Integer.toString(entityRadarRange));
         p.setProperty("player.auto_tool",Boolean.toString(autoTool)); p.setProperty("settings.accent_color",Integer.toString(accentColorIndex));
+        p.setProperty("visuals.minimap",Boolean.toString(showMinimap)); p.setProperty("hud.target",Boolean.toString(showTargetHud));
+        p.setProperty("world.chunk_borders",Boolean.toString(showChunkBorders)); p.setProperty("visuals.max_brightness",Boolean.toString(maxBrightness));
         p.setProperty("waypoint.saved",Boolean.toString(hasWaypoint)); p.setProperty("waypoint.x",Double.toString(waypointX));
         p.setProperty("waypoint.y",Double.toString(waypointY)); p.setProperty("waypoint.z",Double.toString(waypointZ));
         p.setProperty("building.anchor_saved",Boolean.toString(hasBuildAnchor)); p.setProperty("building.x",Integer.toString(buildX));
@@ -80,11 +85,12 @@ public final class NovaConfig {
         customCrosshair=false; showTargetBlock=false; showChunkInfo=false; showWaypoint=true; showBuildGuide=false;
         showToolInfo=false; showWorldTime=false; showWeather=false; showEntityCount=false; showPing=false;
         toggleSprint=false; autoMine=false; autoFarm=false; antiAfk=false; showEntityRadar=false; autoTool=false;
+        showMinimap=false; showTargetHud=false; showChunkBorders=false; maxBrightness=false;
         switch(profile) {
-            case "Survival" -> { showArmor=true; showEffects=true; showWorldTime=true; showWeather=true; showWaypoint=true; showToolInfo=true; showEntityRadar=true; autoTool=true; }
-            case "Creative" -> { showChunkInfo=true; showBuildGuide=true; showEntityCount=true; }
+            case "Survival" -> { showArmor=true; showEffects=true; showWorldTime=true; showWeather=true; showWaypoint=true; showToolInfo=true; showEntityRadar=true; autoTool=true; showMinimap=true; }
+            case "Creative" -> { showChunkInfo=true; showChunkBorders=true; showMinimap=true; showBuildGuide=true; showEntityCount=true; }
             case "PvP" -> { showKeystrokes=true; showCps=true; showArmor=true; showPing=true; customCrosshair=true; }
-            case "Visual / Utility" -> { showKeystrokes=true; showArmor=true; showEffects=true; showArrayList=true; showWorldTime=true; showWeather=true; showEntityCount=true; showPing=true; }
+            case "Visual / Utility" -> { showKeystrokes=true; showArmor=true; showEffects=true; showArrayList=true; showWorldTime=true; showWeather=true; showEntityCount=true; showPing=true; showMinimap=true; showTargetHud=true; }
             default -> profileName="Custom";
         }
         save();
