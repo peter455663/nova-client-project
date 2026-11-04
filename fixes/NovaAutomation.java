@@ -79,7 +79,7 @@ public final class NovaAutomation {
         }
         BlockState state=mc.level.getBlockState(hit.getBlockPos());
         if(state.isAir()) { restoreAutoTool(mc); return; }
-        int selected=mc.player.getInventory().selected;
+        int selected=mc.player.getInventory().getSelectedSlot();
         int best=selected;
         float bestScore=toolScore(mc.player.getInventory().getItem(selected),state);
         for(int slot=0;slot<9;slot++) {
@@ -90,7 +90,7 @@ public final class NovaAutomation {
         if(best!=selected) {
             if(!autoToolChangedSlot) autoToolOriginalSlot=selected;
             autoToolChangedSlot=true;
-            mc.player.getInventory().selected=best;
+            mc.player.getInventory().setSelectedSlot(best);
         }
     }
 
@@ -103,7 +103,7 @@ public final class NovaAutomation {
 
     private static void restoreAutoTool(Minecraft mc) {
         if(autoToolChangedSlot && mc.player!=null && autoToolOriginalSlot>=0)
-            mc.player.getInventory().selected=autoToolOriginalSlot;
+            mc.player.getInventory().setSelectedSlot(autoToolOriginalSlot);
         autoToolOriginalSlot=-1;
         autoToolChangedSlot=false;
     }
