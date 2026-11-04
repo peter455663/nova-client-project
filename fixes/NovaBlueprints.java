@@ -2,6 +2,7 @@ package hu.peter.nova;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Locale;
 
 /**
@@ -26,10 +27,60 @@ public final class NovaBlueprints {
         "tower","underground_storage","large_survival_base"
     );
 
+    private static final Map<String,String> HU_NAMES = Map.ofEntries(
+        Map.entry("starter_house","Kezdőház"),
+        Map.entry("modern_house","Modern ház"),
+        Map.entry("medieval_house","Középkori ház"),
+        Map.entry("wooden_survival_house","Faház túléléshez"),
+        Map.entry("stone_house","Kőház"),
+        Map.entry("luxury_mansion","Luxusvilla"),
+        Map.entry("large_mansion","Nagy kúria"),
+        Map.entry("japanese_house","Japán ház"),
+        Map.entry("mountain_house","Hegyi ház"),
+        Map.entry("underground_base","Föld alatti bázis"),
+        Map.entry("farmhouse","Tanya"),
+        Map.entry("treehouse","Faház a fán"),
+        Map.entry("castle","Kastély"),
+        Map.entry("watchtower","Őrtorony"),
+        Map.entry("villager_house","Falusi ház"),
+        Map.entry("storage_house","Raktárház"),
+        Map.entry("wheat_farm","Búzafarm"),
+        Map.entry("carrot_farm","Répakert"),
+        Map.entry("potato_farm","Burgonyafarm"),
+        Map.entry("beetroot_farm","Céklafarm"),
+        Map.entry("sugar_cane_farm","Cukornádfarm"),
+        Map.entry("bamboo_farm","Bambuszfarm"),
+        Map.entry("cactus_farm","Kaktuszfarm"),
+        Map.entry("pumpkin_farm","Tökfarm"),
+        Map.entry("melon_farm","Dinnyefarm"),
+        Map.entry("tree_farm","Fafarm"),
+        Map.entry("animal_farm","Állatfarm"),
+        Map.entry("xp_farm","Tapasztalatfarm"),
+        Map.entry("mob_farm","Mobfarm"),
+        Map.entry("villager_breeder","Falusi szaporító"),
+        Map.entry("automatic_storage_room","Automata raktár"),
+        Map.entry("villager_trading_hall","Falusi kereskedőcsarnok"),
+        Map.entry("enchanting_room","Bűvölőszoba"),
+        Map.entry("nether_portal_room","Netherkapu-szoba"),
+        Map.entry("mine_entrance","Bányabejárat"),
+        Map.entry("bridge","Híd"),
+        Map.entry("road","Út"),
+        Map.entry("wall","Fal"),
+        Map.entry("tower","Torony"),
+        Map.entry("underground_storage","Föld alatti raktár"),
+        Map.entry("large_survival_base","Nagy túlélőbázis")
+    );
+
     private NovaBlueprints() {}
 
     public static List<String> commands(String id, int x, int y, int z) {
         String key = id == null ? "starter_house" : id.toLowerCase(Locale.ROOT);
+        key = switch(key) {
+            case "cabin" -> "wooden_survival_house";
+            case "cottage" -> "farmhouse";
+            case "modern" -> "modern_house";
+            default -> key;
+        };
         if (HOUSES.contains(key)) return house(key,x,y,z);
         if (FARMS.contains(key)) return farm(key,x,y,z);
         if (STRUCTURES.contains(key)) return structure(key,x,y,z);
@@ -37,7 +88,19 @@ public final class NovaBlueprints {
     }
 
     public static String displayName(String id) {
-        return id.replace('_',' ').toUpperCase(Locale.ROOT);
+        if (!NovaLanguage.isEnglish()) return HU_NAMES.getOrDefault(id, titleCase(id));
+        return titleCase(id);
+    }
+
+    private static String titleCase(String id) {
+        StringBuilder out=new StringBuilder();
+        for(String part:id.replace('_',' ').split(" ")) {
+            if(part.isEmpty()) continue;
+            if(out.length()>0) out.append(' ');
+            out.append(part.substring(0,1).toUpperCase(Locale.ROOT));
+            if(part.length()>1) out.append(part.substring(1));
+        }
+        return out.toString();
     }
 
     private static List<String> house(String id,int x,int y,int z) {

@@ -24,7 +24,9 @@ public final class NovaAutomation {
     private static boolean wasHoldingAttack;
     private static int autoToolOriginalSlot=-1;
     private static boolean autoToolChangedSlot;
-    private static String buildStatus="Idle";\n    private static int buildTotal, buildSent;\n    private static boolean buildPaused;
+    private static String buildStatus="Idle";
+    private static int buildTotal, buildSent;
+    private static boolean buildPaused;
     private static String adminStatus="No admin command sent";
     private static Double originalGamma;
 
