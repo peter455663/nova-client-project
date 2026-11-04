@@ -3,7 +3,7 @@ package hu.peter.nova;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
+import net.fabricmc.fabric.api.client.command.v2.ClientCommands;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
@@ -36,14 +36,14 @@ public final class NovaClient implements ClientModInitializer {
     @Override public void onInitializeClient() {
         NovaConfig.load();
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
-            dispatcher.register(ClientCommandManager.literal("nova")
+            dispatcher.register(ClientCommands.literal("nova")
                     .executes(context -> {
-                        Minecraft.getInstance().setScreen(new NovaClickGuiScreen());
+                        Minecraft.getInstance().gui.setScreen(new NovaClickGuiScreen());
                         return 1;
                     }));
-            dispatcher.register(ClientCommandManager.literal("novaclient")
+            dispatcher.register(ClientCommands.literal("novaclient")
                     .executes(context -> {
-                        Minecraft.getInstance().setScreen(new NovaClickGuiScreen());
+                        Minecraft.getInstance().gui.setScreen(new NovaClickGuiScreen());
                         return 1;
                     }));
         });
