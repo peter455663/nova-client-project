@@ -37,7 +37,7 @@ public final class NovaAutomation {
             boolean farmTarget=NovaConfig.autoFarm && isMatureCrop(mc);
             boolean autoAttack=(NovaConfig.autoMine && blockTarget) || farmTarget;
             if(NovaConfig.autoMine || NovaConfig.autoFarm) {
-                mc.options.keyAttack.setDown(autoAttack || mc.options.keyAttack.isDown());
+                mc.options.keyAttack.setDown(autoAttack);
                 wasHoldingAttack=autoAttack;
             } else releaseAutomationKeys(mc);
 
