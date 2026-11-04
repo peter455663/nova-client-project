@@ -24,7 +24,7 @@ import java.util.Locale;
 public final class NovaClient implements ClientModInitializer {
     public static final String MOD_ID="nova";
     public static final Logger LOGGER=LoggerFactory.getLogger(MOD_ID);
-    private static KeyMapping openGuiKey;
+    private static KeyMapping openGuiKey, autoToolKey, entityRadarKey;
     private static boolean previousAttackDown;
     private static final Deque<Long> ATTACK_CLICKS=new ArrayDeque<>();
 
@@ -33,8 +33,14 @@ public final class NovaClient implements ClientModInitializer {
         KeyMapping.Category category=KeyMapping.Category.register(Identifier.fromNamespaceAndPath(MOD_ID,"main"));
         openGuiKey=KeyMappingHelper.registerKeyMapping(new KeyMapping("key.nova.open_gui",
                 InputConstants.Type.KEYBOARD,InputConstants.KEY_RALT,category));
+        autoToolKey=KeyMappingHelper.registerKeyMapping(new KeyMapping("key.nova.toggle_auto_tool",
+                InputConstants.Type.KEYBOARD,InputConstants.KEY_R,category));
+        entityRadarKey=KeyMappingHelper.registerKeyMapping(new KeyMapping("key.nova.toggle_entity_radar",
+                InputConstants.Type.KEYBOARD,InputConstants.KEY_J,category));
         ClientTickEvents.END_CLIENT_TICK.register(client->{
             while(openGuiKey.consumeClick()) client.gui.setScreen(new NovaClickGuiScreen());
+            while(autoToolKey.consumeClick()){NovaConfig.autoTool=!NovaConfig.autoTool;NovaConfig.save();}
+            while(entityRadarKey.consumeClick()){NovaConfig.showEntityRadar=!NovaConfig.showEntityRadar;NovaConfig.save();}
             if(client.player!=null && NovaConfig.toggleSprint && client.options.keyUp.isDown()) client.options.keySprint.setDown(true);
             boolean attackDown=client.options.keyAttack.isDown();
             if(attackDown && !previousAttackDown) ATTACK_CLICKS.addLast(System.currentTimeMillis());
@@ -45,7 +51,7 @@ public final class NovaClient implements ClientModInitializer {
         });
         HudElementRegistry.attachElementBefore(VanillaHudElements.CHAT,
                 Identifier.fromNamespaceAndPath(MOD_ID,"utility_hud"),NovaClient::renderHud);
-        LOGGER.info("Nova Utility Client 0.4.0 initialized. Press Right Alt to open the menu.");
+        LOGGER.info("Nova Utility Client 0.5.0 initialized. Right Alt opens the menu; R toggles Auto Tool; J toggles Entity Radar.");
     }
 
     private static void renderHud(GuiGraphicsExtractor graphics,DeltaTracker deltaTracker) {
@@ -110,6 +116,18 @@ public final class NovaClient implements ClientModInitializer {
             int count=0; for(var ignored:client.level.entitiesForRendering()) count++;
             rows.add("VISIBLE ENTITIES  "+count);
         }
+        if(NovaConfig.showEntityRadar) {
+            List<String> nearby=new ArrayList<>();
+            for(var entity:client.level.entitiesForRendering()) {
+                if(entity==client.player || !entity.isAlive()) continue;
+                double distance=entity.distanceTo(client.player);
+                if(distance<=NovaConfig.entityRadarRange)
+                    nearby.add(String.format(Locale.ROOT,"%s  %.1fm",entity.getName().getString(),distance));
+            }
+            rows.add("ENTITY RADAR  "+nearby.size()+" / "+NovaConfig.entityRadarRange+"m");
+            for(int i=0;i<Math.min(5,nearby.size());i++) rows.add("  "+nearby.get(i));
+            if(nearby.isEmpty()) rows.add("  No nearby entities");
+        }
         if(NovaConfig.showPing && client.getConnection()!=null) {
             var info=client.getConnection().getPlayerInfo(client.player.getUUID());
             if(info!=null) rows.add("PING  "+info.getLatency()+" ms");
@@ -132,7 +150,7 @@ public final class NovaClient implements ClientModInitializer {
         if(!rows.isEmpty()) {
             int x=8,y=8,rowHeight=12,width=260,height=8+rows.size()*rowHeight;
             int panel=NovaConfig.lightTheme?0xB8E8ECF5:0xA8101420;
-            int accent=NovaConfig.lightTheme?0xFF6550B7:0xFF8B5CF6;
+            int accent=NovaConfig.accentColor();
             int foreground=NovaConfig.lightTheme?0xFF202334:0xFFF1F3F8;
             int secondary=NovaConfig.lightTheme?0xFF535B70:0xFFB8C2D8;
             graphics.fill(x,y,x+width,y+height,panel);graphics.fill(x,y,x+2,y+height,accent);
@@ -144,7 +162,7 @@ public final class NovaClient implements ClientModInitializer {
         }
         if(NovaConfig.customCrosshair) {
             int cx=client.getWindow().getGuiScaledWidth()/2,cy=client.getWindow().getGuiScaledHeight()/2;
-            int color=NovaConfig.lightTheme?0xFF4D3C99:0xFFB9A0FF;
+            int color=NovaConfig.accentColor();
             graphics.fill(cx-5,cy-1,cx+5,cy+1,color);graphics.fill(cx-1,cy-5,cx+1,cy+5,color);
         }
     }
