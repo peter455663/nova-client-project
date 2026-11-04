@@ -19,7 +19,7 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
-      - name: Extract project and apply Nova 0.6.0 sources
+      - name: Extract project and apply Nova 0.7.0 sources
         run: |
           mkdir source
           unzip -q Nova-Utility-Client-0.2.0-source.zip -d source
@@ -30,7 +30,7 @@ jobs:
           cp fixes/NovaConfig.java "$PROJECT_DIR/src/client/java/hu/peter/nova/NovaConfig.java"
           cp fixes/NovaCategoryScreen.java "$PROJECT_DIR/src/client/java/hu/peter/nova/NovaCategoryScreen.java"
           cp fixes/NovaAutomation.java "$PROJECT_DIR/src/client/java/hu/peter/nova/NovaAutomation.java"
-          sed -i 's/^mod_version=.*/mod_version=0.6.0/' "$PROJECT_DIR/gradle.properties"
+          sed -i 's/^mod_version=.*/mod_version=0.7.0/' "$PROJECT_DIR/gradle.properties"
           echo "Applied Nova 0.4.0 source files:"
           find "$PROJECT_DIR/src/client/java/hu/peter/nova" -maxdepth 1 -type f -printf '%f\n' | sort
 
@@ -59,7 +59,7 @@ jobs:
       - name: Upload JAR
         uses: actions/upload-artifact@v4
         with:
-          name: Nova-Utility-Client-0.6.0-JAR
+          name: Nova-Utility-Client-0.7.0-JAR
           path: source/NovaUtilityClient-26.3/build/libs/*.jar
           if-no-files-found: error
           retention-days: 14
