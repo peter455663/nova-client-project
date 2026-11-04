@@ -15,7 +15,8 @@ public final class NovaConfig {
     public static boolean showKeystrokes, showCps, showArmor, showEffects, showArrayList, customCrosshair;
     public static boolean showTargetBlock, showChunkInfo, showWaypoint=true, showBuildGuide, showToolInfo;
     public static boolean showWorldTime, showWeather, showEntityCount, showPing;
-    public static boolean toggleSprint, lightTheme, autoMine, autoFarm, antiAfk;
+    public static boolean toggleSprint, lightTheme, autoMine, autoFarm, antiAfk, showEntityRadar, autoTool;
+    public static int entityRadarRange=24, accentColorIndex=0;
     public static boolean hasWaypoint, hasBuildAnchor;
     public static double waypointX, waypointY, waypointZ;
     public static int buildX, buildY, buildZ;
@@ -38,6 +39,8 @@ public final class NovaConfig {
             showWorldTime=bool(p,"world.time",showWorldTime); showWeather=bool(p,"world.weather",showWeather);
             showEntityCount=bool(p,"world.entity_count",showEntityCount); showPing=bool(p,"hud.ping",showPing);
             autoMine=bool(p,"mining.auto",autoMine); autoFarm=bool(p,"farming.auto",autoFarm); antiAfk=bool(p,"misc.anti_afk",antiAfk);
+            showEntityRadar=bool(p,"world.entity_radar",showEntityRadar); entityRadarRange=Math.max(8,Math.min(64,integer(p,"world.entity_radar_range",entityRadarRange)));
+            autoTool=bool(p,"player.auto_tool",autoTool); accentColorIndex=Math.floorMod(integer(p,"settings.accent_color",accentColorIndex),5);
             lightTheme=bool(p,"settings.light_theme",lightTheme); hasWaypoint=bool(p,"waypoint.saved",hasWaypoint);
             waypointX=decimal(p,"waypoint.x",0); waypointY=decimal(p,"waypoint.y",0); waypointZ=decimal(p,"waypoint.z",0);
             hasBuildAnchor=bool(p,"building.anchor_saved",hasBuildAnchor);
@@ -59,6 +62,8 @@ public final class NovaConfig {
         p.setProperty("world.weather",Boolean.toString(showWeather)); p.setProperty("world.entity_count",Boolean.toString(showEntityCount));
         p.setProperty("mining.auto",Boolean.toString(autoMine)); p.setProperty("farming.auto",Boolean.toString(autoFarm));
         p.setProperty("misc.anti_afk",Boolean.toString(antiAfk)); p.setProperty("settings.light_theme",Boolean.toString(lightTheme));
+        p.setProperty("world.entity_radar",Boolean.toString(showEntityRadar)); p.setProperty("world.entity_radar_range",Integer.toString(entityRadarRange));
+        p.setProperty("player.auto_tool",Boolean.toString(autoTool)); p.setProperty("settings.accent_color",Integer.toString(accentColorIndex));
         p.setProperty("waypoint.saved",Boolean.toString(hasWaypoint)); p.setProperty("waypoint.x",Double.toString(waypointX));
         p.setProperty("waypoint.y",Double.toString(waypointY)); p.setProperty("waypoint.z",Double.toString(waypointZ));
         p.setProperty("building.anchor_saved",Boolean.toString(hasBuildAnchor)); p.setProperty("building.x",Integer.toString(buildX));
@@ -74,9 +79,9 @@ public final class NovaConfig {
         showKeystrokes=false; showCps=false; showArmor=false; showEffects=false; showArrayList=true;
         customCrosshair=false; showTargetBlock=false; showChunkInfo=false; showWaypoint=true; showBuildGuide=false;
         showToolInfo=false; showWorldTime=false; showWeather=false; showEntityCount=false; showPing=false;
-        toggleSprint=false; autoMine=false; autoFarm=false; antiAfk=false;
+        toggleSprint=false; autoMine=false; autoFarm=false; antiAfk=false; showEntityRadar=false; autoTool=false;
         switch(profile) {
-            case "Survival" -> { showArmor=true; showEffects=true; showWorldTime=true; showWeather=true; showWaypoint=true; showToolInfo=true; }
+            case "Survival" -> { showArmor=true; showEffects=true; showWorldTime=true; showWeather=true; showWaypoint=true; showToolInfo=true; showEntityRadar=true; autoTool=true; }
             case "Creative" -> { showChunkInfo=true; showBuildGuide=true; showEntityCount=true; }
             case "PvP" -> { showKeystrokes=true; showCps=true; showArmor=true; showPing=true; customCrosshair=true; }
             case "Visual / Utility" -> { showKeystrokes=true; showArmor=true; showEffects=true; showArrayList=true; showWorldTime=true; showWeather=true; showEntityCount=true; showPing=true; }
@@ -84,6 +89,18 @@ public final class NovaConfig {
         }
         save();
     }
+
+    public static int accentColor(){
+        return switch(Math.floorMod(accentColorIndex,5)){
+            case 1 -> 0xFF22C5A5;
+            case 2 -> 0xFFFF9F43;
+            case 3 -> 0xFF4D9CFF;
+            case 4 -> 0xFFFF5C8A;
+            default -> lightTheme?0xFF6550B7:0xFF9B83FF;
+        };
+    }
+    public static String accentName(){return switch(Math.floorMod(accentColorIndex,5)){case 1->"Mint";case 2->"Amber";case 3->"Blue";case 4->"Rose";default->"Violet";};}
+    public static void cycleAccent(){accentColorIndex=Math.floorMod(accentColorIndex+1,5);save();}
 
     private static boolean bool(Properties p,String k,boolean d){return Boolean.parseBoolean(p.getProperty(k,Boolean.toString(d)));}
     private static int integer(Properties p,String k,int d){try{return Integer.parseInt(p.getProperty(k,Integer.toString(d)));}catch(NumberFormatException e){return d;}}
