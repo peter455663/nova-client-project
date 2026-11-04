@@ -12,7 +12,7 @@ import java.util.function.Supplier;
 /** Independent module windows launched from the Nova ClickGUI. */
 public final class NovaCategoryScreen extends Screen {
     public enum Category { HUD,VISUALS,MOVEMENT,PLAYER,WORLD,BUILDING,FARMING,MINING,MISC,PROFILES,SETTINGS,ADMIN }
-    private static final int PANEL_WIDTH=470,PANEL_HEIGHT=410;
+    private static final int PANEL_WIDTH=470,PANEL_HEIGHT=520;
     private final Category category;
     private final List<Control> controls=new ArrayList<>();
     private final List<Button> buttons=new ArrayList<>();
@@ -119,11 +119,15 @@ public final class NovaCategoryScreen extends Screen {
                 action("Set day",()->"OP",()->NovaAutomation.runAdminAction("day",Minecraft.getInstance()));
                 action("Set night",()->"OP",()->NovaAutomation.runAdminAction("night",Minecraft.getInstance()));
                 action("Clear weather",()->"OP",()->NovaAutomation.runAdminAction("clear_weather",Minecraft.getInstance()));
-                action("Rain / Thunder",()->"OP",()->NovaAutomation.runAdminAction("rain",Minecraft.getInstance()));
+                action("Rain",()->"OP",()->NovaAutomation.runAdminAction("rain",Minecraft.getInstance()));
+                action("Thunderstorm",()->"OP",()->NovaAutomation.runAdminAction("thunder",Minecraft.getInstance()));
                 action("Difficulty: peaceful",()->"OP",()->NovaAutomation.runAdminAction("peaceful",Minecraft.getInstance()));
                 action("Difficulty: normal",()->"OP",()->NovaAutomation.runAdminAction("normal",Minecraft.getInstance()));
+                action("Difficulty: hard",()->"OP",()->NovaAutomation.runAdminAction("hard",Minecraft.getInstance()));
                 action("Keep inventory ON",()->"OP",()->NovaAutomation.runAdminAction("keep_on",Minecraft.getInstance()));
                 action("Keep inventory OFF",()->"OP",()->NovaAutomation.runAdminAction("keep_off",Minecraft.getInstance()));
+                action("Freeze day/night cycle",()->"OP",()->NovaAutomation.runAdminAction("day_cycle_off",Minecraft.getInstance()));
+                action("Resume day/night cycle",()->"OP",()->NovaAutomation.runAdminAction("day_cycle_on",Minecraft.getInstance()));
                 action("Heal + saturation",()->"OP",()->NovaAutomation.runAdminAction("heal",Minecraft.getInstance()));
                 action("Fire resistance (5 min)",()->"OP",()->NovaAutomation.runAdminAction("fire_resistance",Minecraft.getInstance()));
                 action("Remove blindness",()->"OP",()->NovaAutomation.runAdminAction("remove_blindness",Minecraft.getInstance()));
