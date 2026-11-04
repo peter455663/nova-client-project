@@ -196,7 +196,7 @@ public final class NovaCategoryScreen extends Screen {
             case PROFILES->"Apply a preset set of HUD and utility options.";
             case SETTINGS->"Change the menu appearance, accent color and save preferences.";
             case OP_ONLY->"OP ONLY: commands and structure builds need operator permission; servers can reject them.";
-            case STRUCTURES->"Előre elkészített építmények és infrastruktúra-sablonok."
+            case STRUCTURES->"Előre elkészített építmények és infrastruktúra-sablonok.";
         };
     }
     @Override public void onClose(){this.minecraft.gui.setScreen(new NovaClickGuiScreen());}
