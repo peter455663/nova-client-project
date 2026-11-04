@@ -12,7 +12,10 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.core.BlockPos;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.ArrayDeque;
@@ -58,7 +61,7 @@ public final class NovaClient implements ClientModInitializer {
         Minecraft client=Minecraft.getInstance();
         if(client.player==null || client.level==null) return;
         List<String> rows=new ArrayList<>();
-        if(NovaConfig.showWatermark) rows.add("NOVA  /  UTILITY  0.4.0");
+        if(NovaConfig.showWatermark) rows.add("NOVA  /  UTILITY  0.6.0");
         if(NovaConfig.showCoordinates) rows.add(String.format(Locale.ROOT,"XYZ  %.1f  %.1f  %.1f",client.player.getX(),client.player.getY(),client.player.getZ()));
         if(NovaConfig.showFps) rows.add("FPS  "+client.getFps());
         if(NovaConfig.showDirection) rows.add("FACING  "+client.player.getDirection().getName().toUpperCase(Locale.ROOT));
@@ -93,7 +96,9 @@ public final class NovaClient implements ClientModInitializer {
         }
         if(NovaConfig.showWaypoint && NovaConfig.hasWaypoint) {
             double dx=client.player.getX()-NovaConfig.waypointX,dy=client.player.getY()-NovaConfig.waypointY,dz=client.player.getZ()-NovaConfig.waypointZ;
-            rows.add(String.format(Locale.ROOT,"WAYPOINT  %.1fm",Math.sqrt(dx*dx+dy*dy+dz*dz)));
+            double distance=Math.sqrt(dx*dx+dy*dy+dz*dz);
+            double bearing=Math.toDegrees(Math.atan2(-dx,dz));
+            rows.add(String.format(Locale.ROOT,"WAYPOINT  %.1fm  BEARING %.0f°",distance,bearing));
         }
         if(NovaConfig.showBuildGuide) rows.add("BUILD  "+NovaConfig.buildTemplate.toUpperCase(Locale.ROOT)
                 +(NovaConfig.hasBuildAnchor?"  ANCHOR "+NovaConfig.buildX+" "+NovaConfig.buildY+" "+NovaConfig.buildZ:"  NO ANCHOR"));
@@ -132,6 +137,8 @@ public final class NovaClient implements ClientModInitializer {
             var info=client.getConnection().getPlayerInfo(client.player.getUUID());
             if(info!=null) rows.add("PING  "+info.getLatency()+" ms");
         }
+        if(NovaConfig.maxBrightness) rows.add("MAX BRIGHTNESS  ON");
+        if(NovaConfig.autoTool) rows.add("AUTO TOOL  ON");
         if(NovaConfig.autoMine) rows.add("AUTO MINE  ON");
         if(NovaConfig.autoFarm) rows.add("AUTO FARM  ON");
         if(NovaConfig.antiAfk) rows.add("ANTI-AFK  ON");
@@ -145,6 +152,9 @@ public final class NovaClient implements ClientModInitializer {
             if(NovaConfig.autoFarm) active.add("AutoFarm");
             if(NovaConfig.antiAfk) active.add("AntiAFK");
             if(NovaConfig.toggleSprint) active.add("ToggleSprint");
+            if(NovaConfig.showMinimap) active.add("Minimap");
+            if(NovaConfig.showTargetHud) active.add("TargetHUD");
+            if(NovaConfig.maxBrightness) active.add("Brightness");
             rows.add("ACTIVE  "+String.join(" / ",active));
         }
         if(!rows.isEmpty()) {
@@ -160,11 +170,72 @@ public final class NovaClient implements ClientModInitializer {
                 graphics.text(client.font,rows.get(i),x+8,textY,color,true);textY+=rowHeight;
             }
         }
+        if(NovaConfig.showMinimap) renderMinimap(graphics,client);
+        if(NovaConfig.showTargetHud) renderTargetHud(graphics,client);
         if(NovaConfig.customCrosshair) {
             int cx=client.getWindow().getGuiScaledWidth()/2,cy=client.getWindow().getGuiScaledHeight()/2;
             int color=NovaConfig.accentColor();
             graphics.fill(cx-5,cy-1,cx+5,cy+1,color);graphics.fill(cx-1,cy-5,cx+1,cy+5,color);
         }
     }
+    private static void renderMinimap(GuiGraphicsExtractor graphics,Minecraft client) {
+        if(client.player==null || client.level==null) return;
+        final int radius=5, tile=7, mapSize=(radius*2+1)*tile;
+        int left=client.getWindow().getGuiScaledWidth()-mapSize-12, top=12;
+        int px=client.player.blockPosition().getX(), py=client.player.blockPosition().getY(), pz=client.player.blockPosition().getZ();
+        graphics.fill(left-4,top-4,left+mapSize+4,top+mapSize+4,0xB8101420);
+        graphics.fill(left-4,top-4,left+mapSize+4,top-2,NovaConfig.accentColor());
+        for(int dz=-radius;dz<=radius;dz++) for(int dx=-radius;dx<=radius;dx++) {
+            int worldX=px+dx, worldZ=pz+dz;
+            BlockPos sample=new BlockPos(worldX,py-1,worldZ);
+            var state=client.level.getBlockState(sample);
+            for(int depth=2;depth<=8 && state.isAir();depth++) {
+                sample=new BlockPos(worldX,py-depth,worldZ);
+                state=client.level.getBlockState(sample);
+            }
+            int color=mapBlockColor(state.getBlock().getName().getString());
+            int x=left+(dx+radius)*tile, y=top+(dz+radius)*tile;
+            graphics.fill(x,y,x+tile-1,y+tile-1,color);
+            if(NovaConfig.showChunkBorders && (Math.floorMod(worldX,16)==0 || Math.floorMod(worldZ,16)==0)) {
+                if(Math.floorMod(worldX,16)==0) graphics.fill(x,y,x+1,y+tile,NovaConfig.accentColor());
+                if(Math.floorMod(worldZ,16)==0) graphics.fill(x,y,x+tile,y+1,NovaConfig.accentColor());
+            }
+        }
+        int centerX=left+radius*tile,centerY=top+radius*tile;
+        graphics.fill(centerX+1,centerY+1,centerX+tile-1,centerY+tile-1,0xFFFFFFFF);
+        graphics.fill(centerX+2,centerY-2,centerX+tile-2,centerY+2,NovaConfig.accentColor());
+        graphics.text(client.font,"N",left+mapSize/2-2,top-12,0xFFFFFFFF,true);
+    }
+
+    private static int mapBlockColor(String rawName) {
+        String name=rawName.toLowerCase(Locale.ROOT);
+        if(name.contains("water")) return 0xFF315FA8;
+        if(name.contains("lava")) return 0xFFE07828;
+        if(name.contains("grass") || name.contains("moss") || name.contains("leaves") || name.contains("azalea")) return 0xFF477B43;
+        if(name.contains("sand") || name.contains("sandstone") || name.contains("terracotta")) return 0xFFD6BC78;
+        if(name.contains("snow") || name.contains("ice") || name.contains("powder")) return 0xFFD5E5EE;
+        if(name.contains("log") || name.contains("wood") || name.contains("plank")) return 0xFF87613E;
+        if(name.contains("dirt") || name.contains("mud") || name.contains("root")) return 0xFF79543C;
+        if(name.contains("stone") || name.contains("deepslate") || name.contains("ore")) return 0xFF777D86;
+        if(name.contains("air")) return 0xFF253040;
+        return 0xFF626B58;
+    }
+
+    private static void renderTargetHud(GuiGraphicsExtractor graphics,Minecraft client) {
+        if(!(client.hitResult instanceof EntityHitResult hit) || !(hit.getEntity() instanceof LivingEntity target)) return;
+        int x=8,y=client.getWindow().getGuiScaledHeight()-54,w=178,h=42;
+        int panel=NovaConfig.lightTheme?0xDDE8ECF5:0xD9101420;
+        graphics.fill(x,y,x+w,y+h,panel);
+        graphics.fill(x,y,x+2,y+h,NovaConfig.accentColor());
+        String name=target.getName().getString();
+        if(name.length()>22) name=name.substring(0,19)+"...";
+        graphics.text(client.font,name,x+9,y+6,0xFFFFFFFF,true);
+        float max=Math.max(1.0F,target.getMaxHealth()),health=Math.max(0.0F,target.getHealth());
+        int barWidth=(int)(150.0F*Math.min(1.0F,health/max));
+        graphics.fill(x+9,y+24,x+159,y+31,0xFF46343A);
+        graphics.fill(x+9,y+24,x+9+barWidth,y+31,0xFFE45B67);
+        graphics.text(client.font,String.format(Locale.ROOT,"%.1f / %.1f HP",health,max),x+9,y+33,0xFFE2E7F0,false);
+    }
+
     private static String key(KeyMapping mapping){return mapping.isDown()?"[■]":"[ ]";}
 }
