@@ -25,12 +25,10 @@ jobs:
           unzip -q Nova-Utility-Client-0.2.0-source.zip -d source
           PROJECT_DIR="source/NovaUtilityClient-26.3"
           test -d "$PROJECT_DIR/src/client/java/hu/peter/nova"
-          cp fixes/NovaClient.java "$PROJECT_DIR/src/client/java/hu/peter/nova/NovaClient.java"
-          cp fixes/NovaClickGuiScreen.java "$PROJECT_DIR/src/client/java/hu/peter/nova/NovaClickGuiScreen.java"
-          cp fixes/NovaConfig.java "$PROJECT_DIR/src/client/java/hu/peter/nova/NovaConfig.java"
-          cp fixes/NovaCategoryScreen.java "$PROJECT_DIR/src/client/java/hu/peter/nova/NovaCategoryScreen.java"
-          cp fixes/NovaAutomation.java "$PROJECT_DIR/src/client/java/hu/peter/nova/NovaAutomation.java"
-          sed -i 's/^mod_version=.*/mod_version=0.8.0/' "$PROJECT_DIR/gradle.properties"
+          cp fixes/*.java "$PROJECT_DIR/src/client/java/hu/peter/nova/"
+          if [ -d fixes/resources ]; then cp -r fixes/resources/. "$PROJECT_DIR/src/client/resources/"; fi
+          if [ -f fixes/fabric.mod.json ]; then cp fixes/fabric.mod.json "$PROJECT_DIR/src/main/resources/fabric.mod.json"; fi
+          sed -i 's/^mod_version=.*/mod_version=1.0.0/' "$PROJECT_DIR/gradle.properties"
           echo "Applied Nova 0.4.0 source files:"
           find "$PROJECT_DIR/src/client/java/hu/peter/nova" -maxdepth 1 -type f -printf '%f\n' | sort
 
@@ -56,10 +54,26 @@ jobs:
             gradle --no-daemon clean build
           fi
 
+      - name: API probe (diagnostics)
+        if: always()
+        shell: bash
+        run: |
+          for pat in 'fabric-command-api-v2*' 'fabric-rendering-v1*' 'fabric-key-mapping*' 'fabric-lifecycle-events*'; do
+            for j in $(find ~/.gradle -name "$pat.jar" ! -name '*sources*' 2>/dev/null | head -2); do
+              echo "== $j"; unzip -l "$j" | awk '{print $4}' | grep '\.class$' | grep -v '\$' | head -60
+            done
+          done
+          for j in $(find ~/.gradle -iname 'minecraft*26.3*.jar' ! -name '*sources*' 2>/dev/null | head -1); do
+            echo "== MC $j"; echo "$j" > /tmp/mcjar
+          done
+          if [ -f /tmp/mcjar ]; then J=$(cat /tmp/mcjar);
+            javap -cp "$J" net.minecraft.client.Minecraft | grep -iE "screen|gui|player|level|options|getInstance" | head -30 || true
+          fi
+
       - name: Upload JAR
         uses: actions/upload-artifact@v4
         with:
-          name: Nova-Utility-Client-0.8.0-JAR
+          name: Nova-Utility-Client-JAR
           path: source/NovaUtilityClient-26.3/build/libs/*.jar
           if-no-files-found: error
           retention-days: 14
