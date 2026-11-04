@@ -11,7 +11,7 @@ public final class NovaClickGuiScreen extends Screen {
     public NovaClickGuiScreen(){super(Component.literal("Nova Utility Client"));}
     @Override protected void init(){
         int left=(width-PANEL_WIDTH)/2,top=(height-PANEL_HEIGHT)/2;
-        String[] labels={"HUD","VISUALS","MOVEMENT","PLAYER","WORLD","BUILDING","FARMING","MINING","MISC","PROFILES","SETTINGS"};
+        String[] labels={"HUD","VISUALS","MOVEMENT","PLAYER","WORLD","BUILDING","FARMING","MINING","MISC","PROFILES","SETTINGS","ADMIN"};
         NovaCategoryScreen.Category[] categories=NovaCategoryScreen.Category.values();
         int x1=left+24,x2=left+242,w=204,h=27;
         for(int i=0;i<labels.length;i++){
@@ -30,7 +30,7 @@ public final class NovaClickGuiScreen extends Screen {
         g.fill(0,0,width,height,0x88000000);g.fill(left-1,top-1,left+PANEL_WIDTH+1,top+PANEL_HEIGHT+1,0xFF353047);
         g.fill(left,top,left+PANEL_WIDTH,top+PANEL_HEIGHT,bg);g.fill(left,top,left+PANEL_WIDTH,top+48,header);
         g.fill(left,top,left+3,top+PANEL_HEIGHT,accent);g.text(font,"NOVA",left+24,top+16,accent,true);
-        g.text(font,"UTILITY CLIENT  /  0.6.0",left+94,top+16,text,true);
+        g.text(font,"UTILITY CLIENT  /  0.7.0",left+94,top+16,text,true);
         g.text(font,"Each category opens in its own module window.",left+24,top+60,text,false);
         g.text(font,"Right Alt opens this menu  ·  settings save automatically",left+24,top+PANEL_HEIGHT-68,text,false);
         super.extractRenderState(g,mx,my,delta);
