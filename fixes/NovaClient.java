@@ -1,6 +1,6 @@
 package hu.peter.nova;
 
-import com.mojang.blaze3d.platform.InputConstants;
+import com.mojang.blaze3d.platform.InputConstants;\nimport com.mojang.brigadier.arguments.StringArgumentType;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommands;
@@ -24,7 +24,7 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
-import java.util.Locale;
+import java.util.Locale;\nimport java.io.IOException;
 
 public final class NovaClient implements ClientModInitializer {
     public static final String MOD_ID="nova";
@@ -45,7 +45,24 @@ public final class NovaClient implements ClientModInitializer {
                     .executes(context -> {
                         Minecraft.getInstance().gui.setScreen(new NovaClickGuiScreen());
                         return 1;
-                    }));
+                    }));\n            dispatcher.register(ClientCommands.literal("novaimport")
+                    .then(net.fabricmc.fabric.api.client.command.v2.ClientCommands.argument("file", StringArgumentType.word())
+                            .executes(context -> {
+                                Minecraft mc=Minecraft.getInstance();
+                                String file=context.getArgument("file",String.class);
+                                try {
+                                    BlockPos anchor=NovaConfig.hasBuildAnchor
+                                            ? new BlockPos(NovaConfig.buildX,NovaConfig.buildY,NovaConfig.buildZ)
+                                            : (mc.player==null?BlockPos.ZERO:mc.player.blockPosition().offset(0,0,2));
+                                    var commands=NovaSchematicImporter.readSpongeSchematic(file,anchor);
+                                    NovaAutomation.startImportedBuild(file,commands,mc);
+                                    LOGGER.info("Queued imported schematic {} with {} commands",file,commands.size());
+                                } catch(IOException | IllegalArgumentException ex) {
+                                    LOGGER.warn("Could not import schematic {}",file,ex);
+                                    mc.gui.setOverlayMessage(net.minecraft.network.chat.Component.literal("Nova: "+ex.getMessage()),false);
+                                }
+                                return 1;
+                            })));
         });
         KeyMapping.Category category=KeyMapping.Category.register(Identifier.fromNamespaceAndPath(MOD_ID,"main"));
         openGuiKey=KeyMappingHelper.registerKeyMapping(new KeyMapping("key.nova.open_gui",

@@ -240,6 +240,29 @@ public final class NovaAutomation {
         buildStatus="Queued "+buildTotal+" commands; requires operator permission";
     }
 
+    public static void startImportedBuild(String name,List<String> commands,Minecraft mc) {
+        if(mc.player==null || mc.getConnection()==null) {
+            buildStatus="Join a world before importing a schematic";
+            return;
+        }
+        if(!BUILD_COMMANDS.isEmpty()) {
+            buildStatus="A build is already running";
+            return;
+        }
+        if(commands==null || commands.isEmpty() || commands.size()>8192) {
+            buildStatus="Schematic is empty or exceeds the safe 8192-command limit";
+            return;
+        }
+        BUILD_COMMANDS.addAll(commands);
+        buildTotal=commands.size();
+        buildSent=0;
+        buildPaused=false;
+        NovaConfig.buildTemplate=name;
+        NovaConfig.showBuildGuide=true;
+        NovaConfig.save();
+        buildStatus="Imported "+name+" · "+buildTotal+" placement commands queued; operator permission required";
+    }
+
     public static void pauseBuild() {
         if(!BUILD_COMMANDS.isEmpty()) {
             buildPaused=true;
