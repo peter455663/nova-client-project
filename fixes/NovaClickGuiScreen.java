@@ -32,7 +32,7 @@ public final class NovaClickGuiScreen extends Screen {
         g.fill(left,top,left+3,top+PANEL_HEIGHT,accent);g.text(font,"NOVA",left+24,top+16,accent,true);
         g.text(font,"UTILITY CLIENT  /  0.7.0",left+94,top+16,text,true);
         g.text(font,"Each category opens in its own module window.",left+24,top+60,text,false);
-        g.text(font,"Right Alt opens this menu  ·  settings save automatically",left+24,top+PANEL_HEIGHT-68,text,false);
+        g.text(font,"Right Alt menu  ·  R Auto Tool  ·  J Radar  ·  K Minimap  ·  T Target HUD",left+24,top+PANEL_HEIGHT-68,text,false);
         super.extractRenderState(g,mx,my,delta);
     }
     @Override public void onClose(){this.minecraft.gui.setScreen(null);}
