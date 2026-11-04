@@ -56,6 +56,7 @@ jobs:
 
       - name: API probe (diagnostics)
         if: always()
+        continue-on-error: true
         shell: bash
         run: |
           for pat in 'fabric-command-api-v2*' 'fabric-rendering-v1*' 'fabric-key-mapping*' 'fabric-lifecycle-events*'; do
