@@ -57,11 +57,13 @@ public final class NovaCategoryScreen extends Screen {
                 toggle("Waypoint distance HUD",()->NovaConfig.showWaypoint,()->NovaConfig.showWaypoint=!NovaConfig.showWaypoint);
                 action("Save waypoint here",()->NovaConfig.hasWaypoint?"SAVED":"NOT SET",NovaCategoryScreen::saveWaypoint);
                 action("Clear waypoint",()->NovaConfig.hasWaypoint?"SAVED":"EMPTY",()->NovaConfig.hasWaypoint=false);
+                toggle("Nearby entity radar",()->NovaConfig.showEntityRadar,()->NovaConfig.showEntityRadar=!NovaConfig.showEntityRadar);
+                action("Radar range",()->NovaConfig.entityRadarRange+" blocks",()->NovaConfig.entityRadarRange=NovaConfig.entityRadarRange>=64?8:NovaConfig.entityRadarRange+8);
             }
             case MOVEMENT->toggle("Toggle sprint",()->NovaConfig.toggleSprint,()->NovaConfig.toggleSprint=!NovaConfig.toggleSprint);
             case PLAYER->{
-                action("Player utilities",()->"CLIENT-SIDE",()->{});
-                action("Status",()->"No combat or anti-cheat bypass",()->{});
+                toggle("Auto Tool (best hotbar tool)",()->NovaConfig.autoTool,()->NovaConfig.autoTool=!NovaConfig.autoTool);
+                action("Auto Tool keybind",()->"R",()->{});
             }
             case WORLD->{
                 toggle("World time",()->NovaConfig.showWorldTime,()->NovaConfig.showWorldTime=!NovaConfig.showWorldTime);
@@ -97,7 +99,10 @@ public final class NovaCategoryScreen extends Screen {
                 for(String profile:List.of("Survival","Creative","PvP","Visual / Utility","Custom"))
                     action(profile,()->NovaConfig.profileName.equals(profile)?"ACTIVE":"APPLY",()->NovaConfig.applyProfile(profile));
             }
-            case SETTINGS->toggle("Light theme",()->NovaConfig.lightTheme,()->NovaConfig.lightTheme=!NovaConfig.lightTheme);
+            case SETTINGS->{
+                toggle("Light theme",()->NovaConfig.lightTheme,()->NovaConfig.lightTheme=!NovaConfig.lightTheme);
+                action("Accent color",NovaConfig::accentName,NovaConfig::cycleAccent);
+            }
         }
     }
 
@@ -119,7 +124,7 @@ public final class NovaCategoryScreen extends Screen {
     @Override public void extractRenderState(GuiGraphicsExtractor g,int mx,int my,float delta){
         int left=(width-PANEL_WIDTH)/2,top=(height-PANEL_HEIGHT)/2;
         int bg=NovaConfig.lightTheme?0xF0F4F5FA:0xF0121520,header=NovaConfig.lightTheme?0xFFE0E4F0:0xFF1C2030;
-        int text=NovaConfig.lightTheme?0xFF202334:0xFFE6E8F0,accent=NovaConfig.lightTheme?0xFF6550B7:0xFF8B5CF6;
+        int text=NovaConfig.lightTheme?0xFF202334:0xFFE6E8F0,accent=NovaConfig.accentColor();
         g.fill(0,0,width,height,0x88000000);g.fill(left-1,top-1,left+PANEL_WIDTH+1,top+PANEL_HEIGHT+1,0xFF353047);
         g.fill(left,top,left+PANEL_WIDTH,top+PANEL_HEIGHT,bg);g.fill(left,top,left+PANEL_WIDTH,top+48,header);
         g.fill(left,top,left+3,top+PANEL_HEIGHT,accent);g.text(font,"NOVA  /  "+category.name(),left+24,top+16,accent,true);
@@ -130,16 +135,16 @@ public final class NovaCategoryScreen extends Screen {
     private String description(){
         return switch(category){
             case HUD->"Toggle the information widgets shown on your screen.";
-            case VISUALS->"Waypoints and information about blocks you are looking at.";
+            case VISUALS->"Waypoints, target block details and a nearby entity radar (J toggles radar).";
             case MOVEMENT->"Movement preferences; no server protection bypass.";
-            case PLAYER->"Basic client-side utilities; more modules can be added.";
+            case PLAYER->"Auto Tool selects the strongest normal hotbar tool for the targeted block (R toggles it).";
             case WORLD->"Information about local world time, weather and entities.";
             case BUILDING->"Prebuilt structures use server commands and require OP permission.";
             case FARMING->"Auto harvest works when you aim at a fully grown vanilla crop.";
             case MINING->"Auto mine holds the normal attack key on the block you target.";
             case MISC->"Anti-AFK performs a small view adjustment every 55 seconds.";
             case PROFILES->"Apply a preset set of HUD and utility options.";
-            case SETTINGS->"Change the menu appearance and save preferences.";
+            case SETTINGS->"Change the menu appearance, accent color and save preferences.";
         };
     }
     @Override public void onClose(){this.minecraft.gui.setScreen(new NovaClickGuiScreen());}
