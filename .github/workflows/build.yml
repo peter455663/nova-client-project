@@ -22,7 +22,11 @@ jobs:
         run: |
           mkdir source
           unzip -q Nova-Utility-Client-0.2.0-source.zip -d source
-          echo "Extracted project files:"
+          PROJECT_DIR="source/NovaUtilityClient-26.3"
+          test -d "$PROJECT_DIR/src/client/java/hu/peter/nova"
+          cp fixes/NovaClient.java "$PROJECT_DIR/src/client/java/hu/peter/nova/NovaClient.java"
+          cp fixes/NovaClickGuiScreen.java "$PROJECT_DIR/src/client/java/hu/peter/nova/NovaClickGuiScreen.java"
+          echo "Extracted project files and applied the checked-in 26.3 compatibility fixes:"
           find source -maxdepth 4 -type f | sort | head -200
 
       - name: Set up Java 25
