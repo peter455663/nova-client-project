@@ -30,70 +30,70 @@ public final class NovaCategoryScreen extends Screen {
                     .bounds(x,y,w,h).build();
             buttons.add(b);addRenderableWidget(b);
         }
-        addRenderableWidget(Button.builder(Component.literal("Back"),b->this.minecraft.gui.setScreen(new NovaClickGuiScreen()))
+        addRenderableWidget(Button.builder(Component.literal("Vissza"),b->this.minecraft.gui.setScreen(new NovaClickGuiScreen()))
                 .bounds(left+24,top+panelHeight-44,86,25).build());
-        addRenderableWidget(Button.builder(Component.literal("Close"),b->onClose())
+        addRenderableWidget(Button.builder(Component.literal("Bezárás"),b->onClose())
                 .bounds(left+PANEL_WIDTH-110,top+panelHeight-44,86,25).build());
     }
 
     private void buildControls(){
         switch(category){
             case HUD->{
-                toggle("Watermark",()->NovaConfig.showWatermark,()->NovaConfig.showWatermark=!NovaConfig.showWatermark);
-                toggle("Coordinates",()->NovaConfig.showCoordinates,()->NovaConfig.showCoordinates=!NovaConfig.showCoordinates);
-                toggle("FPS counter",()->NovaConfig.showFps,()->NovaConfig.showFps=!NovaConfig.showFps);
-                toggle("Direction",()->NovaConfig.showDirection,()->NovaConfig.showDirection=!NovaConfig.showDirection);
-                toggle("Biome",()->NovaConfig.showBiome,()->NovaConfig.showBiome=!NovaConfig.showBiome);
-                toggle("Keystrokes",()->NovaConfig.showKeystrokes,()->NovaConfig.showKeystrokes=!NovaConfig.showKeystrokes);
-                toggle("CPS counter",()->NovaConfig.showCps,()->NovaConfig.showCps=!NovaConfig.showCps);
-                toggle("Armor details",()->NovaConfig.showArmor,()->NovaConfig.showArmor=!NovaConfig.showArmor);
-                toggle("Potion effect names",()->NovaConfig.showEffects,()->NovaConfig.showEffects=!NovaConfig.showEffects);
-                toggle("Active module list",()->NovaConfig.showArrayList,()->NovaConfig.showArrayList=!NovaConfig.showArrayList);
-                toggle("Custom crosshair",()->NovaConfig.customCrosshair,()->NovaConfig.customCrosshair=!NovaConfig.customCrosshair);
+                toggle("Vízjel",()->NovaConfig.showWatermark,()->NovaConfig.showWatermark=!NovaConfig.showWatermark);
+                toggle("Koordináták",()->NovaConfig.showCoordinates,()->NovaConfig.showCoordinates=!NovaConfig.showCoordinates);
+                toggle("FPS számláló",()->NovaConfig.showFps,()->NovaConfig.showFps=!NovaConfig.showFps);
+                toggle("Irány",()->NovaConfig.showDirection,()->NovaConfig.showDirection=!NovaConfig.showDirection);
+                toggle("Biom",()->NovaConfig.showBiome,()->NovaConfig.showBiome=!NovaConfig.showBiome);
+                toggle("Billentyűk",()->NovaConfig.showKeystrokes,()->NovaConfig.showKeystrokes=!NovaConfig.showKeystrokes);
+                toggle("CPS számláló",()->NovaConfig.showCps,()->NovaConfig.showCps=!NovaConfig.showCps);
+                toggle("Páncél adatok",()->NovaConfig.showArmor,()->NovaConfig.showArmor=!NovaConfig.showArmor);
+                toggle("Bájitalhatások",()->NovaConfig.showEffects,()->NovaConfig.showEffects=!NovaConfig.showEffects);
+                toggle("Aktív modulok",()->NovaConfig.showArrayList,()->NovaConfig.showArrayList=!NovaConfig.showArrayList);
+                toggle("Egyedi célkereszt",()->NovaConfig.customCrosshair,()->NovaConfig.customCrosshair=!NovaConfig.customCrosshair);
                 toggle("Ping",()->NovaConfig.showPing,()->NovaConfig.showPing=!NovaConfig.showPing);
-                toggle("Target HUD",()->NovaConfig.showTargetHud,()->NovaConfig.showTargetHud=!NovaConfig.showTargetHud);
+                toggle("Célpont HUD",()->NovaConfig.showTargetHud,()->NovaConfig.showTargetHud=!NovaConfig.showTargetHud);
             }
             case VISUALS->{
-                toggle("Target block information",()->NovaConfig.showTargetBlock,()->NovaConfig.showTargetBlock=!NovaConfig.showTargetBlock);
-                toggle("Chunk coordinates",()->NovaConfig.showChunkInfo,()->NovaConfig.showChunkInfo=!NovaConfig.showChunkInfo);
-                toggle("Waypoint distance HUD",()->NovaConfig.showWaypoint,()->NovaConfig.showWaypoint=!NovaConfig.showWaypoint);
-                action("Save waypoint here",()->NovaConfig.hasWaypoint?"SAVED":"NOT SET",NovaCategoryScreen::saveWaypoint);
-                action("Clear waypoint",()->NovaConfig.hasWaypoint?"SAVED":"EMPTY",()->NovaConfig.hasWaypoint=false);
-                toggle("Nearby entity radar",()->NovaConfig.showEntityRadar,()->NovaConfig.showEntityRadar=!NovaConfig.showEntityRadar);
-                action("Radar range",()->NovaConfig.entityRadarRange+" blocks",()->NovaConfig.entityRadarRange=NovaConfig.entityRadarRange>=64?8:NovaConfig.entityRadarRange+8);
-                toggle("Block minimap",()->NovaConfig.showMinimap,()->NovaConfig.showMinimap=!NovaConfig.showMinimap);
-                action("Minimap rotation",()->NovaConfig.minimapRotate?"ROTÁLÓ":"ÉSZAK FELÉ",()->NovaConfig.minimapRotate=!NovaConfig.minimapRotate);
-                action("Minimap zoom",()->"x"+NovaConfig.minimapZoom,()->NovaConfig.minimapZoom=NovaConfig.minimapZoom>=4?1:NovaConfig.minimapZoom+1);
+                toggle("Célzott blokk adatai",()->NovaConfig.showTargetBlock,()->NovaConfig.showTargetBlock=!NovaConfig.showTargetBlock);
+                toggle("Chunk koordináták",()->NovaConfig.showChunkInfo,()->NovaConfig.showChunkInfo=!NovaConfig.showChunkInfo);
+                toggle("Waypoint távolság",()->NovaConfig.showWaypoint,()->NovaConfig.showWaypoint=!NovaConfig.showWaypoint);
+                action("Waypoint mentése itt",()->NovaConfig.hasWaypoint?"SAVED":"NOT SET",NovaCategoryScreen::saveWaypoint);
+                action("Waypoint törlése",()->NovaConfig.hasWaypoint?"SAVED":"EMPTY",()->NovaConfig.hasWaypoint=false);
+                toggle("Közeli entitás radar",()->NovaConfig.showEntityRadar,()->NovaConfig.showEntityRadar=!NovaConfig.showEntityRadar);
+                action("Radar hatótáv",()->NovaConfig.entityRadarRange+" blocks",()->NovaConfig.entityRadarRange=NovaConfig.entityRadarRange>=64?8:NovaConfig.entityRadarRange+8);
+                toggle("Blokk minimap",()->NovaConfig.showMinimap,()->NovaConfig.showMinimap=!NovaConfig.showMinimap);
+                action("Minimap forgatás",()->NovaConfig.minimapRotate?"ROTÁLÓ":"ÉSZAK FELÉ",()->NovaConfig.minimapRotate=!NovaConfig.minimapRotate);
+                action("Minimap nagyítás",()->"x"+NovaConfig.minimapZoom,()->NovaConfig.minimapZoom=NovaConfig.minimapZoom>=4?1:NovaConfig.minimapZoom+1);
             }
-            case MOVEMENT->toggle("Toggle sprint",()->NovaConfig.toggleSprint,()->NovaConfig.toggleSprint=!NovaConfig.toggleSprint);
+            case MOVEMENT->toggle("Futás kapcsoló",()->NovaConfig.toggleSprint,()->NovaConfig.toggleSprint=!NovaConfig.toggleSprint);
             case PLAYER->{
-                toggle("Auto Tool (best hotbar tool)",()->NovaConfig.autoTool,()->NovaConfig.autoTool=!NovaConfig.autoTool);
-                toggle("Max vanilla brightness",()->NovaConfig.maxBrightness,()->NovaConfig.maxBrightness=!NovaConfig.maxBrightness);
+                toggle("Automatikus eszközválasztás",()->NovaConfig.autoTool,()->NovaConfig.autoTool=!NovaConfig.autoTool);
+                toggle("Maximális fényerő",()->NovaConfig.maxBrightness,()->NovaConfig.maxBrightness=!NovaConfig.maxBrightness);
             }
             case WORLD->{
-                toggle("World time",()->NovaConfig.showWorldTime,()->NovaConfig.showWorldTime=!NovaConfig.showWorldTime);
-                toggle("Weather",()->NovaConfig.showWeather,()->NovaConfig.showWeather=!NovaConfig.showWeather);
-                toggle("Visible entity count",()->NovaConfig.showEntityCount,()->NovaConfig.showEntityCount=!NovaConfig.showEntityCount);
+                toggle("Világidő",()->NovaConfig.showWorldTime,()->NovaConfig.showWorldTime=!NovaConfig.showWorldTime);
+                toggle("Időjárás",()->NovaConfig.showWeather,()->NovaConfig.showWeather=!NovaConfig.showWeather);
+                toggle("Látható entitások",()->NovaConfig.showEntityCount,()->NovaConfig.showEntityCount=!NovaConfig.showEntityCount);
                 toggle("Ping",()->NovaConfig.showPing,()->NovaConfig.showPing=!NovaConfig.showPing);
-                action("Save waypoint here",()->NovaConfig.hasWaypoint?"SAVED":"NOT SET",NovaCategoryScreen::saveWaypoint);
+                action("Waypoint mentése itt",()->NovaConfig.hasWaypoint?"SAVED":"NOT SET",NovaCategoryScreen::saveWaypoint);
                 toggle("Minimap",()->NovaConfig.showMinimap,()->NovaConfig.showMinimap=!NovaConfig.showMinimap);
-                toggle("Chunk grid on minimap",()->NovaConfig.showChunkBorders,()->NovaConfig.showChunkBorders=!NovaConfig.showChunkBorders);
+                toggle("Chunkrács a minimapon",()->NovaConfig.showChunkBorders,()->NovaConfig.showChunkBorders=!NovaConfig.showChunkBorders);
             }
             case BUILDING->{
-                toggle("Build guide HUD",()->NovaConfig.showBuildGuide,()->NovaConfig.showBuildGuide=!NovaConfig.showBuildGuide);
-                action("Set build anchor here",()->NovaConfig.hasBuildAnchor?"SAVED":"NOT SET",NovaCategoryScreen::saveBuildAnchor);
+                toggle("Építési segéd HUD",()->NovaConfig.showBuildGuide,()->NovaConfig.showBuildGuide=!NovaConfig.showBuildGuide);
+                action("Építési pont beállítása",()->NovaConfig.hasBuildAnchor?"SAVED":"NOT SET",NovaCategoryScreen::saveBuildAnchor);
             }
             case FARMING->{
-                toggle("Auto harvest mature crops",()->NovaConfig.autoFarm,()->NovaConfig.autoFarm=!NovaConfig.autoFarm);
+                toggle("Érett növények automatikus aratása",()->NovaConfig.autoFarm,()->NovaConfig.autoFarm=!NovaConfig.autoFarm);
                 action("How it works",()->"AIM AT RIPE CROP",()->notifyPlayer("Az Auto Farm csak akkor arat, ha egy teljesen kifejlett vanília növényre célzol."));
             }
             case MINING->{
-                toggle("Auto mine targeted block",()->NovaConfig.autoMine,()->NovaConfig.autoMine=!NovaConfig.autoMine);
-                toggle("Held tool durability HUD",()->NovaConfig.showToolInfo,()->NovaConfig.showToolInfo=!NovaConfig.showToolInfo);
+                toggle("Célzott blokk automatikus bányászata",()->NovaConfig.autoMine,()->NovaConfig.autoMine=!NovaConfig.autoMine);
+                toggle("Kézben tartott eszköz tartóssága",()->NovaConfig.showToolInfo,()->NovaConfig.showToolInfo=!NovaConfig.showToolInfo);
                 action("How it works",()->"VANILLA BREAK SPEED",()->notifyPlayer("Az Auto Mine a célzott blokkot a normál Minecraft bányászati sebességgel töri."));
             }
             case MISC->{
-                toggle("Anti-AFK view nudge",()->NovaConfig.antiAfk,()->NovaConfig.antiAfk=!NovaConfig.antiAfk);
+                toggle("Anti-AFK kamera mozdítás",()->NovaConfig.antiAfk,()->NovaConfig.antiAfk=!NovaConfig.antiAfk);
                 action("Status",()->"55 MÁSODPERC",()->notifyPlayer("Az Anti-AFK 55 másodpercenként egy apró kameraelmozdítást végez. Szerveroldali AFK-szabályokat nem kerül meg."));
             }
             case PROFILES->{
@@ -101,37 +101,37 @@ public final class NovaCategoryScreen extends Screen {
                     action(profile,()->NovaConfig.profileName.equals(profile)?"ACTIVE":"APPLY",()->NovaConfig.applyProfile(profile));
             }
             case SETTINGS->{
-                toggle("Light theme",()->NovaConfig.lightTheme,()->NovaConfig.lightTheme=!NovaConfig.lightTheme);
-                action("Accent color",NovaConfig::accentName,NovaConfig::cycleAccent);
+                toggle("Világos téma",()->NovaConfig.lightTheme,()->NovaConfig.lightTheme=!NovaConfig.lightTheme);
+                action("Kiemelőszín",NovaConfig::accentName,NovaConfig::cycleAccent);
             }
             case OP_ONLY->{
-                action("Creative mode",()->"OP",()->NovaAutomation.runAdminAction("creative",Minecraft.getInstance()));
-                action("Survival mode",()->"OP",()->NovaAutomation.runAdminAction("survival",Minecraft.getInstance()));
-                action("Set day",()->"OP",()->NovaAutomation.runAdminAction("day",Minecraft.getInstance()));
-                action("Set night",()->"OP",()->NovaAutomation.runAdminAction("night",Minecraft.getInstance()));
-                action("Clear weather",()->"OP",()->NovaAutomation.runAdminAction("clear_weather",Minecraft.getInstance()));
+                action("Kreatív mód",()->"OP",()->NovaAutomation.runAdminAction("creative",Minecraft.getInstance()));
+                action("Túlélő mód",()->"OP",()->NovaAutomation.runAdminAction("survival",Minecraft.getInstance()));
+                action("Nappal beállítása",()->"OP",()->NovaAutomation.runAdminAction("day",Minecraft.getInstance()));
+                action("Éjszaka beállítása",()->"OP",()->NovaAutomation.runAdminAction("night",Minecraft.getInstance()));
+                action("Időjárás tisztítása",()->"OP",()->NovaAutomation.runAdminAction("clear_weather",Minecraft.getInstance()));
                 action("Rain",()->"OP",()->NovaAutomation.runAdminAction("rain",Minecraft.getInstance()));
-                action("Thunderstorm",()->"OP",()->NovaAutomation.runAdminAction("thunder",Minecraft.getInstance()));
-                action("Difficulty: peaceful",()->"OP",()->NovaAutomation.runAdminAction("peaceful",Minecraft.getInstance()));
-                action("Difficulty: normal",()->"OP",()->NovaAutomation.runAdminAction("normal",Minecraft.getInstance()));
-                action("Difficulty: hard",()->"OP",()->NovaAutomation.runAdminAction("hard",Minecraft.getInstance()));
-                action("Keep inventory ON",()->"OP",()->NovaAutomation.runAdminAction("keep_on",Minecraft.getInstance()));
-                action("Keep inventory OFF",()->"OP",()->NovaAutomation.runAdminAction("keep_off",Minecraft.getInstance()));
-                action("Freeze day/night cycle",()->"OP",()->NovaAutomation.runAdminAction("day_cycle_off",Minecraft.getInstance()));
-                action("Resume day/night cycle",()->"OP",()->NovaAutomation.runAdminAction("day_cycle_on",Minecraft.getInstance()));
-                action("Heal + saturation",()->"OP",()->NovaAutomation.runAdminAction("heal",Minecraft.getInstance()));
-                action("Fire resistance (5 min)",()->"OP",()->NovaAutomation.runAdminAction("fire_resistance",Minecraft.getInstance()));
-                action("Remove blindness",()->"OP",()->NovaAutomation.runAdminAction("remove_blindness",Minecraft.getInstance()));
-                action("Set world spawn here",()->"OP",()->NovaAutomation.runAdminAction("spawn_here",Minecraft.getInstance()));
-                action("Clear hostile mobs (24 blocks)",()->"OP",()->NovaAutomation.runAdminAction("clear_hostiles",Minecraft.getInstance()));
-                action("Speed II",()->"60 sec",()->NovaAutomation.runAdminAction("speed",Minecraft.getInstance()));
-                action("Jump Boost II",()->"60 sec",()->NovaAutomation.runAdminAction("jump",Minecraft.getInstance()));
-                action("Slow Falling",()->"60 sec",()->NovaAutomation.runAdminAction("slow_falling",Minecraft.getInstance()));
-                action("Build starter cabin",()->"OP",()->NovaAutomation.startBuild("cabin",Minecraft.getInstance()));
-                action("Build cottage",()->"OP",()->NovaAutomation.startBuild("cottage",Minecraft.getInstance()));
-                action("Build modern house",()->"OP",()->NovaAutomation.startBuild("modern",Minecraft.getInstance()));
-                action("Build watchtower",()->"OP",()->NovaAutomation.startBuild("watchtower",Minecraft.getInstance()));
-                action("Cancel queued build",NovaAutomation::getBuildStatus,NovaAutomation::cancelBuild);
+                action("Vihar",()->"OP",()->NovaAutomation.runAdminAction("thunder",Minecraft.getInstance()));
+                action("Nehézség: békés",()->"OP",()->NovaAutomation.runAdminAction("peaceful",Minecraft.getInstance()));
+                action("Nehézség: normál",()->"OP",()->NovaAutomation.runAdminAction("normal",Minecraft.getInstance()));
+                action("Nehézség: nehéz",()->"OP",()->NovaAutomation.runAdminAction("hard",Minecraft.getInstance()));
+                action("Tárgyak megtartása BE",()->"OP",()->NovaAutomation.runAdminAction("keep_on",Minecraft.getInstance()));
+                action("Tárgyak megtartása KI",()->"OP",()->NovaAutomation.runAdminAction("keep_off",Minecraft.getInstance()));
+                action("Nappal-éjszaka ciklus leállítása",()->"OP",()->NovaAutomation.runAdminAction("day_cycle_off",Minecraft.getInstance()));
+                action("Nappal-éjszaka ciklus folytatása",()->"OP",()->NovaAutomation.runAdminAction("day_cycle_on",Minecraft.getInstance()));
+                action("Gyógyítás + telítettség",()->"OP",()->NovaAutomation.runAdminAction("heal",Minecraft.getInstance()));
+                action("Tűzállóság (5 perc)",()->"OP",()->NovaAutomation.runAdminAction("fire_resistance",Minecraft.getInstance()));
+                action("Vakság eltávolítása",()->"OP",()->NovaAutomation.runAdminAction("remove_blindness",Minecraft.getInstance()));
+                action("Világspawn beállítása itt",()->"OP",()->NovaAutomation.runAdminAction("spawn_here",Minecraft.getInstance()));
+                action("Ellenséges mobok törlése (24 blokk)",()->"OP",()->NovaAutomation.runAdminAction("clear_hostiles",Minecraft.getInstance()));
+                action("Gyorsaság II",()->"60 sec",()->NovaAutomation.runAdminAction("speed",Minecraft.getInstance()));
+                action("Ugrásnövelés II",()->"60 sec",()->NovaAutomation.runAdminAction("jump",Minecraft.getInstance()));
+                action("Lassú esés",()->"60 sec",()->NovaAutomation.runAdminAction("slow_falling",Minecraft.getInstance()));
+                action("Kezdő kunyhó építése",()->"OP",()->NovaAutomation.startBuild("cabin",Minecraft.getInstance()));
+                action("Házikó építése",()->"OP",()->NovaAutomation.startBuild("cottage",Minecraft.getInstance()));
+                action("Modern ház építése",()->"OP",()->NovaAutomation.startBuild("modern",Minecraft.getInstance()));
+                action("Őrtorony építése",()->"OP",()->NovaAutomation.startBuild("watchtower",Minecraft.getInstance()));
+                action("Építés megszakítása",NovaAutomation::getBuildStatus,NovaAutomation::cancelBuild);
             }
         }
     }
