@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/build.yml'
+      - 'scripts/**'
       - 'Nova-Utility-Client-0.2.0-source.zip'
       - 'fixes/**'
   workflow_dispatch:
@@ -59,17 +60,14 @@ jobs:
         continue-on-error: true
         shell: bash
         run: |
-          for pat in 'fabric-command-api-v2*' 'fabric-rendering-v1*' 'fabric-key-mapping*' 'fabric-lifecycle-events*'; do
-            for j in $(find ~/.gradle -name "$pat.jar" ! -name '*sources*' 2>/dev/null | head -2); do
-              echo "== $j"; unzip -l "$j" | awk '{print $4}' | grep '\.class$' | grep -v '\$' | head -60
-            done
-          done
-          for j in $(find ~/.gradle -iname 'minecraft*26.3*.jar' ! -name '*sources*' 2>/dev/null | head -1); do
-            echo "== MC $j"; echo "$j" > /tmp/mcjar
-          done
-          if [ -f /tmp/mcjar ]; then J=$(cat /tmp/mcjar);
-            javap -cp "$J" net.minecraft.client.Minecraft | grep -iE "screen|gui|player|level|options|getInstance" | head -30 || true
-          fi
+          set +o pipefail
+          cp "$GITHUB_WORKSPACE/scripts/probe-classes.txt" /tmp/pc.txt
+          CP=$(find ~/.gradle ~/work -name '*.jar' ! -name '*sources*' -size +100k 2>/dev/null | tr '\n' ':')
+          while IFS='|' read -r cls pats; do
+            echo "=== $cls"
+            RE=$(echo "$pats" | tr '|' '\n' | paste -sd'|')
+            javap -public -cp "$CP" "$cls" 2>&1 | grep -E "$RE|Compiled from|class |interface |enum " | head -40
+          done < /tmp/pc.txt
 
       - name: Upload JAR
         uses: actions/upload-artifact@v4
