@@ -85,16 +85,13 @@ public final class NovaCategoryScreen extends Screen {
             }
             case FARMING->{
                 toggle("Érett növények automatikus aratása",()->NovaConfig.autoFarm,()->NovaConfig.autoFarm=!NovaConfig.autoFarm);
-                action("How it works",()->"AIM AT RIPE CROP",()->notifyPlayer("Az Auto Farm csak akkor arat, ha egy teljesen kifejlett vanília növényre célzol."));
             }
             case MINING->{
                 toggle("Célzott blokk automatikus bányászata",()->NovaConfig.autoMine,()->NovaConfig.autoMine=!NovaConfig.autoMine);
                 toggle("Kézben tartott eszköz tartóssága",()->NovaConfig.showToolInfo,()->NovaConfig.showToolInfo=!NovaConfig.showToolInfo);
-                action("How it works",()->"VANILLA BREAK SPEED",()->notifyPlayer("Az Auto Mine a célzott blokkot a normál Minecraft bányászati sebességgel töri."));
             }
             case MISC->{
                 toggle("Anti-AFK kamera mozdítás",()->NovaConfig.antiAfk,()->NovaConfig.antiAfk=!NovaConfig.antiAfk);
-                action("Status",()->"55 MÁSODPERC",()->notifyPlayer("Az Anti-AFK 55 másodpercenként egy apró kameraelmozdítást végez. Szerveroldali AFK-szabályokat nem kerül meg."));
             }
             case PROFILES->{
                 for(String profile:List.of("Survival","Creative","PvP","Visual / Utility","Custom"))
@@ -134,11 +131,6 @@ public final class NovaCategoryScreen extends Screen {
                 action("Építés megszakítása",NovaAutomation::getBuildStatus,NovaAutomation::cancelBuild);
             }
         }
-    }
-
-    private static void notifyPlayer(String message) {
-        Minecraft mc=Minecraft.getInstance();
-        if(mc.gui!=null) mc.gui.setOverlayMessage(Component.literal("[Nova] "+message),false);
     }
 
     private void toggle(String name,Supplier<Boolean> get,Runnable action){controls.add(new Control(name,()->get.get()?"ON":"OFF",action));}
