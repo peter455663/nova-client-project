@@ -18,7 +18,8 @@ public final class NovaConfig {
     public static boolean toggleSprint, lightTheme, autoMine, autoFarm, antiAfk, showEntityRadar, autoTool;
     public static boolean showMinimap, showTargetHud, showChunkBorders, maxBrightness;
     public static int entityRadarRange=24, accentColorIndex=0, minimapZoom=1;
-    public static boolean minimapRotate=true, minimapCircle=false;\n    public static int minimapRadius=6, minimapOpacity=78, minimapCorner=1;
+    public static boolean minimapRotate=true, minimapCircle=false;
+    public static int minimapRadius=6, minimapOpacity=78, minimapCorner=1;
     public static boolean hasWaypoint, hasBuildAnchor;
     public static double waypointX, waypointY, waypointZ;
     public static int buildX, buildY, buildZ;
