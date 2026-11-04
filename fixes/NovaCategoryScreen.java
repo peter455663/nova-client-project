@@ -62,6 +62,8 @@ public final class NovaCategoryScreen extends Screen {
                 toggle("Nearby entity radar",()->NovaConfig.showEntityRadar,()->NovaConfig.showEntityRadar=!NovaConfig.showEntityRadar);
                 action("Radar range",()->NovaConfig.entityRadarRange+" blocks",()->NovaConfig.entityRadarRange=NovaConfig.entityRadarRange>=64?8:NovaConfig.entityRadarRange+8);
                 toggle("Block minimap",()->NovaConfig.showMinimap,()->NovaConfig.showMinimap=!NovaConfig.showMinimap);
+                action("Minimap rotation",()->NovaConfig.minimapRotate?"ROTÁLÓ":"ÉSZAK FELÉ",()->NovaConfig.minimapRotate=!NovaConfig.minimapRotate);
+                action("Minimap zoom",()->"x"+NovaConfig.minimapZoom,()->NovaConfig.minimapZoom=NovaConfig.minimapZoom>=4?1:NovaConfig.minimapZoom+1);
             }
             case MOVEMENT->toggle("Toggle sprint",()->NovaConfig.toggleSprint,()->NovaConfig.toggleSprint=!NovaConfig.toggleSprint);
             case PLAYER->{
