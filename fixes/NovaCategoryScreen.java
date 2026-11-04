@@ -11,17 +11,18 @@ import java.util.function.Supplier;
 
 /** Independent module windows launched from the Nova ClickGUI. */
 public final class NovaCategoryScreen extends Screen {
-    public enum Category { HUD,VISUALS,MOVEMENT,PLAYER,WORLD,BUILDING,FARMING,MINING,MISC,PROFILES,SETTINGS,ADMIN }
-    private static final int PANEL_WIDTH=470,PANEL_HEIGHT=520;
+    public enum Category { HUD,VISUALS,MOVEMENT,PLAYER,WORLD,BUILDING,FARMING,MINING,MISC,PROFILES,SETTINGS,OP_ONLY }
+    private static final int PANEL_WIDTH=470,DEFAULT_panelHeight=520,OP_panelHeight=660;
     private final Category category;
+    private final int panelHeight;
     private final List<Control> controls=new ArrayList<>();
     private final List<Button> buttons=new ArrayList<>();
 
-    public NovaCategoryScreen(Category category){super(Component.literal("Nova "+category.name()));this.category=category;}
+    public NovaCategoryScreen(Category category){super(Component.literal("Nova "+category.name()));this.category=category;this.panelHeight=category==Category.OP_ONLY?OP_panelHeight:DEFAULT_panelHeight;}
 
     @Override protected void init(){
         controls.clear();buttons.clear();buildControls();
-        int left=(width-PANEL_WIDTH)/2,top=(height-PANEL_HEIGHT)/2;
+        int left=(width-PANEL_WIDTH)/2,top=(height-panelHeight)/2;
         int x1=left+24,x2=left+242,w=204,h=25,gapY=34;
         for(int i=0;i<controls.size();i++){
             Control c=controls.get(i);int x=(i%2==0)?x1:x2,y=top+82+(i/2)*gapY;
@@ -30,9 +31,9 @@ public final class NovaCategoryScreen extends Screen {
             buttons.add(b);addRenderableWidget(b);
         }
         addRenderableWidget(Button.builder(Component.literal("Back"),b->this.minecraft.gui.setScreen(new NovaClickGuiScreen()))
-                .bounds(left+24,top+PANEL_HEIGHT-44,86,25).build());
+                .bounds(left+24,top+panelHeight-44,86,25).build());
         addRenderableWidget(Button.builder(Component.literal("Close"),b->onClose())
-                .bounds(left+PANEL_WIDTH-110,top+PANEL_HEIGHT-44,86,25).build());
+                .bounds(left+PANEL_WIDTH-110,top+panelHeight-44,86,25).build());
     }
 
     private void buildControls(){
@@ -62,12 +63,7 @@ public final class NovaCategoryScreen extends Screen {
                 action("Radar range",()->NovaConfig.entityRadarRange+" blocks",()->NovaConfig.entityRadarRange=NovaConfig.entityRadarRange>=64?8:NovaConfig.entityRadarRange+8);
                 toggle("Block minimap",()->NovaConfig.showMinimap,()->NovaConfig.showMinimap=!NovaConfig.showMinimap);
             }
-            case MOVEMENT->{
-                toggle("Toggle sprint",()->NovaConfig.toggleSprint,()->NovaConfig.toggleSprint=!NovaConfig.toggleSprint);
-                action("Speed II (OP)",()->"60 sec",()->NovaAutomation.runAdminAction("speed",Minecraft.getInstance()));
-                action("Jump Boost II (OP)",()->"60 sec",()->NovaAutomation.runAdminAction("jump",Minecraft.getInstance()));
-                action("Slow Falling (OP)",()->"60 sec",()->NovaAutomation.runAdminAction("slow_falling",Minecraft.getInstance()));
-            }
+            case MOVEMENT->toggle("Toggle sprint",()->NovaConfig.toggleSprint,()->NovaConfig.toggleSprint=!NovaConfig.toggleSprint);
             case PLAYER->{
                 toggle("Auto Tool (best hotbar tool)",()->NovaConfig.autoTool,()->NovaConfig.autoTool=!NovaConfig.autoTool);
                 toggle("Max vanilla brightness",()->NovaConfig.maxBrightness,()->NovaConfig.maxBrightness=!NovaConfig.maxBrightness);
@@ -84,13 +80,7 @@ public final class NovaCategoryScreen extends Screen {
             }
             case BUILDING->{
                 toggle("Build guide HUD",()->NovaConfig.showBuildGuide,()->NovaConfig.showBuildGuide=!NovaConfig.showBuildGuide);
-                action("Build starter cabin  (OP)",()->"PLACE",()->NovaAutomation.startBuild("cabin",Minecraft.getInstance()));
-                action("Build cottage  (OP)",()->"PLACE",()->NovaAutomation.startBuild("cottage",Minecraft.getInstance()));
-                action("Build modern house  (OP)",()->"PLACE",()->NovaAutomation.startBuild("modern",Minecraft.getInstance()));
-                action("Build watchtower  (OP)",()->"PLACE",()->NovaAutomation.startBuild("watchtower",Minecraft.getInstance()));
-                action("Cancel queued build",()->NovaAutomation.getBuildStatus(),NovaAutomation::cancelBuild);
                 action("Set build anchor here",()->NovaConfig.hasBuildAnchor?"SAVED":"NOT SET",NovaCategoryScreen::saveBuildAnchor);
-                action("Selected template",()->NovaConfig.buildTemplate.toUpperCase(),()->{});
             }
             case FARMING->{
                 toggle("Auto harvest mature crops",()->NovaConfig.autoFarm,()->NovaConfig.autoFarm=!NovaConfig.autoFarm);
@@ -113,7 +103,7 @@ public final class NovaCategoryScreen extends Screen {
                 toggle("Light theme",()->NovaConfig.lightTheme,()->NovaConfig.lightTheme=!NovaConfig.lightTheme);
                 action("Accent color",NovaConfig::accentName,NovaConfig::cycleAccent);
             }
-            case ADMIN->{
+            case OP_ONLY->{
                 action("Creative mode",()->"OP",()->NovaAutomation.runAdminAction("creative",Minecraft.getInstance()));
                 action("Survival mode",()->"OP",()->NovaAutomation.runAdminAction("survival",Minecraft.getInstance()));
                 action("Set day",()->"OP",()->NovaAutomation.runAdminAction("day",Minecraft.getInstance()));
@@ -133,6 +123,14 @@ public final class NovaCategoryScreen extends Screen {
                 action("Remove blindness",()->"OP",()->NovaAutomation.runAdminAction("remove_blindness",Minecraft.getInstance()));
                 action("Set world spawn here",()->"OP",()->NovaAutomation.runAdminAction("spawn_here",Minecraft.getInstance()));
                 action("Clear hostile mobs (24 blocks)",()->"OP",()->NovaAutomation.runAdminAction("clear_hostiles",Minecraft.getInstance()));
+                action("Speed II",()->"60 sec",()->NovaAutomation.runAdminAction("speed",Minecraft.getInstance()));
+                action("Jump Boost II",()->"60 sec",()->NovaAutomation.runAdminAction("jump",Minecraft.getInstance()));
+                action("Slow Falling",()->"60 sec",()->NovaAutomation.runAdminAction("slow_falling",Minecraft.getInstance()));
+                action("Build starter cabin",()->"OP",()->NovaAutomation.startBuild("cabin",Minecraft.getInstance()));
+                action("Build cottage",()->"OP",()->NovaAutomation.startBuild("cottage",Minecraft.getInstance()));
+                action("Build modern house",()->"OP",()->NovaAutomation.startBuild("modern",Minecraft.getInstance()));
+                action("Build watchtower",()->"OP",()->NovaAutomation.startBuild("watchtower",Minecraft.getInstance()));
+                action("Cancel queued build",NovaAutomation::getBuildStatus,NovaAutomation::cancelBuild);
             }
         }
     }
@@ -153,15 +151,19 @@ public final class NovaCategoryScreen extends Screen {
     }
 
     @Override public void extractRenderState(GuiGraphicsExtractor g,int mx,int my,float delta){
-        int left=(width-PANEL_WIDTH)/2,top=(height-PANEL_HEIGHT)/2;
+        int left=(width-PANEL_WIDTH)/2,top=(height-panelHeight)/2;
         int bg=NovaConfig.lightTheme?0xF0F4F5FA:0xF0121520,header=NovaConfig.lightTheme?0xFFE0E4F0:0xFF1C2030;
         int text=NovaConfig.lightTheme?0xFF202334:0xFFE6E8F0,accent=NovaConfig.accentColor();
-        g.fill(0,0,width,height,0x88000000);g.fill(left-1,top-1,left+PANEL_WIDTH+1,top+PANEL_HEIGHT+1,0xFF353047);
-        g.fill(left,top,left+PANEL_WIDTH,top+PANEL_HEIGHT,bg);g.fill(left,top,left+PANEL_WIDTH,top+48,header);
-        g.fill(left,top,left+3,top+PANEL_HEIGHT,accent);g.text(font,"NOVA  /  "+category.name(),left+24,top+16,accent,true);
+        g.fill(0,0,width,height,0x88000000);g.fill(left-1,top-1,left+PANEL_WIDTH+1,top+panelHeight+1,0xFF353047);
+        g.fill(left,top,left+PANEL_WIDTH,top+panelHeight,bg);g.fill(left,top,left+PANEL_WIDTH,top+48,header);
+        g.fill(left,top,left+3,top+panelHeight,accent);g.text(font,"NOVA  /  "+category.name(),left+24,top+16,accent,true);
         g.text(font,description(),left+24,top+60,text,false);
-        if(category==Category.BUILDING) g.text(font,NovaAutomation.getBuildStatus(),left+24,top+PANEL_HEIGHT-70,text,false);
-        if(category==Category.ADMIN) g.text(font,NovaAutomation.getAdminStatus(),left+24,top+PANEL_HEIGHT-70,text,false);
+        if(category==Category.BUILDING) g.text(font,NovaAutomation.getBuildStatus(),left+24,top+panelHeight-70,text,false);
+        if(category==Category.OP_ONLY) {
+            g.text(font,"OP ONLY  ·  Requires operator permission and server command support.",left+24,top+panelHeight-70,text,false);
+            g.text(font,NovaAutomation.getAdminStatus(),left+24,top+panelHeight-54,text,false);
+            g.text(font,NovaAutomation.getBuildStatus(),left+24,top+panelHeight-38,text,false);
+        }
         super.extractRenderState(g,mx,my,delta);
     }
     private String description(){
@@ -177,7 +179,7 @@ public final class NovaCategoryScreen extends Screen {
             case MISC->"Anti-AFK performs a small view adjustment every 55 seconds.";
             case PROFILES->"Apply a preset set of HUD and utility options.";
             case SETTINGS->"Change the menu appearance, accent color and save preferences.";
-            case ADMIN->"Server commands require OP and are checked by the server. Mob cleanup never targets players.";
+            case OP_ONLY->"OP ONLY: commands and structure builds need operator permission; servers can reject them.";
         };
     }
     @Override public void onClose(){this.minecraft.gui.setScreen(new NovaClickGuiScreen());}
