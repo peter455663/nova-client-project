@@ -31,7 +31,7 @@ public final class NovaAutomation {
             return;
         }
 
-        if(mc.screen==null) {
+        if(mc.gui.screen()==null) {
             boolean blockTarget=mc.hitResult instanceof BlockHitResult hit
                     && !mc.level.getBlockState(hit.getBlockPos()).isAir();
             boolean farmTarget=NovaConfig.autoFarm && isMatureCrop(mc);
@@ -71,7 +71,7 @@ public final class NovaAutomation {
         if(!(mc.hitResult instanceof BlockHitResult hit)) return false;
         BlockState state=mc.level.getBlockState(hit.getBlockPos());
         if(!(state.getBlock() instanceof CropBlock crop)) return false;
-        return state.getValue(crop.getAgeProperty())>=crop.getMaxAge();
+        return crop.isMaxAge(state);
     }
 
     private static void releaseAutomationKeys(Minecraft mc) {
