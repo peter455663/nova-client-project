@@ -17,6 +17,7 @@ import java.util.List;
  */
 public final class NovaAutomation {
     private static final Deque<String> BUILD_COMMANDS=new ArrayDeque<>();
+    private static final Deque<String> ADMIN_COMMANDS=new ArrayDeque<>();
     private static int tickCounter;
     private static long lastAfkNudge=System.currentTimeMillis();
     private static float lastYaw;
@@ -24,6 +25,7 @@ public final class NovaAutomation {
     private static int autoToolOriginalSlot=-1;
     private static boolean autoToolChangedSlot;
     private static String buildStatus="Idle";
+    private static String adminStatus="No admin command sent";
     private static Double originalGamma;
 
     private NovaAutomation() {}
@@ -56,6 +58,19 @@ public final class NovaAutomation {
         } else {
             releaseAutomationKeys(mc);
             restoreAutoTool(mc);
+        }
+
+        if(!ADMIN_COMMANDS.isEmpty() && tickCounter%3==0) {
+            String command=ADMIN_COMMANDS.pollFirst();
+            try {
+                mc.getConnection().sendCommand(command);
+                adminStatus="OP command queue: "+ADMIN_COMMANDS.size()+" remaining";
+            } catch(RuntimeException ex) {
+                ADMIN_COMMANDS.clear();
+                adminStatus="Command failed to send";
+                NovaClient.LOGGER.error("Nova admin command failed",ex);
+            }
+            if(ADMIN_COMMANDS.isEmpty()) adminStatus="Commands sent; server feedback confirms permissions";
         }
 
         if(!BUILD_COMMANDS.isEmpty() && tickCounter%5==0) {
@@ -133,6 +148,54 @@ public final class NovaAutomation {
             mc.options.keyAttack.setDown(false);
             wasHoldingAttack=false;
         }
+    }
+
+    public static String getAdminStatus(){return adminStatus;}
+
+    /** Sends only fixed, documented commands. Server permission checks still apply. */
+    public static void runAdminAction(String action,Minecraft mc) {
+        if(mc.player==null || mc.getConnection()==null) { adminStatus="Join a server first"; return; }
+        if(!ADMIN_COMMANDS.isEmpty()) { adminStatus="Wait for the current admin command queue"; return; }
+        String[] commands=switch(action) {
+            case "creative" -> new String[]{"gamemode creative @s"};
+            case "survival" -> new String[]{"gamemode survival @s"};
+            case "day" -> new String[]{"time set day"};
+            case "night" -> new String[]{"time set night"};
+            case "clear_weather" -> new String[]{"weather clear"};
+            case "rain" -> new String[]{"weather rain"};
+            case "thunder" -> new String[]{"weather thunder"};
+            case "peaceful" -> new String[]{"difficulty peaceful"};
+            case "normal" -> new String[]{"difficulty normal"};
+            case "hard" -> new String[]{"difficulty hard"};
+            case "keep_on" -> new String[]{"gamerule keepInventory true"};
+            case "keep_off" -> new String[]{"gamerule keepInventory false"};
+            case "day_cycle_off" -> new String[]{"gamerule doDaylightCycle false"};
+            case "day_cycle_on" -> new String[]{"gamerule doDaylightCycle true"};
+            case "heal" -> new String[]{"effect give @s minecraft:instant_health 1 1 true","effect give @s minecraft:saturation 1 1 true"};
+            case "speed" -> new String[]{"effect give @s minecraft:speed 60 1 true"};
+            case "jump" -> new String[]{"effect give @s minecraft:jump_boost 60 1 true"};
+            case "slow_falling" -> new String[]{"effect give @s minecraft:slow_falling 60 0 true"};
+            case "fire_resistance" -> new String[]{"effect give @s minecraft:fire_resistance 300 0 true"};
+            case "remove_blindness" -> new String[]{"effect clear @s minecraft:blindness"};
+            case "spawn_here" -> new String[]{"setworldspawn "+mc.player.blockPosition().getX()+" "+mc.player.blockPosition().getY()+" "+mc.player.blockPosition().getZ()};
+            case "clear_hostiles" -> new String[]{
+                "kill @e[type=minecraft:zombie,distance=..24]","kill @e[type=minecraft:skeleton,distance=..24]",
+                "kill @e[type=minecraft:creeper,distance=..24]","kill @e[type=minecraft:spider,distance=..24]",
+                "kill @e[type=minecraft:cave_spider,distance=..24]","kill @e[type=minecraft:witch,distance=..24]",
+                "kill @e[type=minecraft:enderman,distance=..24]","kill @e[type=minecraft:drowned,distance=..24]",
+                "kill @e[type=minecraft:husk,distance=..24]","kill @e[type=minecraft:stray,distance=..24]",
+                "kill @e[type=minecraft:phantom,distance=..24]","kill @e[type=minecraft:pillager,distance=..24]",
+                "kill @e[type=minecraft:vindicator,distance=..24]","kill @e[type=minecraft:evoker,distance=..24]",
+                "kill @e[type=minecraft:ravager,distance=..24]","kill @e[type=minecraft:blaze,distance=..24]",
+                "kill @e[type=minecraft:ghast,distance=..24]","kill @e[type=minecraft:magma_cube,distance=..24]",
+                "kill @e[type=minecraft:guardian,distance=..24]","kill @e[type=minecraft:shulker,distance=..24]",
+                "kill @e[type=minecraft:silverfish,distance=..24]","kill @e[type=minecraft:endermite,distance=..24]"
+            };
+            default -> new String[0];
+        };
+        if(commands.length==0) { adminStatus="Unknown admin action"; return; }
+        for(String command:commands) ADMIN_COMMANDS.addLast(command);
+        adminStatus="Queued "+commands.length+" OP commands; server permission required";
     }
 
     public static void startBuild(String template,Minecraft mc) {
