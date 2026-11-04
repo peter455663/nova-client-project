@@ -4,6 +4,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.CropBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.BlockHitResult;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -20,6 +21,8 @@ public final class NovaAutomation {
     private static long lastAfkNudge=System.currentTimeMillis();
     private static float lastYaw;
     private static boolean wasHoldingAttack;
+    private static int autoToolOriginalSlot=-1;
+    private static boolean autoToolChangedSlot;
     private static String buildStatus="Idle";
 
     private NovaAutomation() {}
@@ -32,6 +35,7 @@ public final class NovaAutomation {
         }
 
         if(mc.gui.screen()==null) {
+            updateAutoTool(mc);
             boolean blockTarget=mc.hitResult instanceof BlockHitResult hit
                     && !mc.level.getBlockState(hit.getBlockPos()).isAir();
             boolean farmTarget=NovaConfig.autoFarm && isMatureCrop(mc);
@@ -49,6 +53,7 @@ public final class NovaAutomation {
             }
         } else {
             releaseAutomationKeys(mc);
+            restoreAutoTool(mc);
         }
 
         if(!BUILD_COMMANDS.isEmpty() && tickCounter%5==0) {
@@ -65,6 +70,42 @@ public final class NovaAutomation {
             }
             if(BUILD_COMMANDS.isEmpty() && buildStatus.startsWith("Building:")) buildStatus="Build commands sent; check server feedback";
         }
+    }
+
+    private static void updateAutoTool(Minecraft mc) {
+        if(!NovaConfig.autoTool || !(mc.hitResult instanceof BlockHitResult hit)) {
+            restoreAutoTool(mc);
+            return;
+        }
+        BlockState state=mc.level.getBlockState(hit.getBlockPos());
+        if(state.isAir()) { restoreAutoTool(mc); return; }
+        int selected=mc.player.getInventory().selected;
+        int best=selected;
+        float bestScore=toolScore(mc.player.getInventory().getItem(selected),state);
+        for(int slot=0;slot<9;slot++) {
+            ItemStack stack=mc.player.getInventory().getItem(slot);
+            float score=toolScore(stack,state);
+            if(score>bestScore+0.01F) { bestScore=score; best=slot; }
+        }
+        if(best!=selected) {
+            if(!autoToolChangedSlot) autoToolOriginalSlot=selected;
+            autoToolChangedSlot=true;
+            mc.player.getInventory().selected=best;
+        }
+    }
+
+    private static float toolScore(ItemStack stack,BlockState state) {
+        if(stack.isEmpty()) return 1.0F;
+        float score=stack.getDestroySpeed(state);
+        if(stack.isCorrectToolForDrops(state)) score+=1000.0F;
+        return score;
+    }
+
+    private static void restoreAutoTool(Minecraft mc) {
+        if(autoToolChangedSlot && mc.player!=null && autoToolOriginalSlot>=0)
+            mc.player.getInventory().selected=autoToolOriginalSlot;
+        autoToolOriginalSlot=-1;
+        autoToolChangedSlot=false;
     }
 
     private static boolean isMatureCrop(Minecraft mc) {
