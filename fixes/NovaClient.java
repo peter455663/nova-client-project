@@ -60,14 +60,14 @@ public final class NovaClient implements ClientModInitializer {
         });
         HudElementRegistry.attachElementBefore(VanillaHudElements.CHAT,
                 Identifier.fromNamespaceAndPath(MOD_ID,"utility_hud"),NovaClient::renderHud);
-        LOGGER.info("Nova Utility Client 0.7.0 initialized. Right Alt opens the menu; R Auto Tool; J Radar; K Minimap; T Target HUD.");
+        LOGGER.info("Nova Utility Client 0.8.0 initialized. Right Alt menu; R Auto Tool; J Radar; K Minimap; T Target HUD.");
     }
 
     private static void renderHud(GuiGraphicsExtractor graphics,DeltaTracker deltaTracker) {
         Minecraft client=Minecraft.getInstance();
         if(client.player==null || client.level==null) return;
         List<String> rows=new ArrayList<>();
-        if(NovaConfig.showWatermark) rows.add("NOVA  /  UTILITY  0.7.0");
+        if(NovaConfig.showWatermark) rows.add("NOVA  /  UTILITY  0.8.0");
         if(NovaConfig.showCoordinates) rows.add(String.format(Locale.ROOT,"XYZ  %.1f  %.1f  %.1f",client.player.getX(),client.player.getY(),client.player.getZ()));
         if(NovaConfig.showFps) rows.add("FPS  "+client.getFps());
         if(NovaConfig.showDirection) rows.add("FACING  "+client.player.getDirection().getName().toUpperCase(Locale.ROOT));
