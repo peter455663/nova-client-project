@@ -3,6 +3,8 @@ package hu.peter.nova;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
+import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements;
@@ -33,6 +35,18 @@ public final class NovaClient implements ClientModInitializer {
 
     @Override public void onInitializeClient() {
         NovaConfig.load();
+        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
+            dispatcher.register(ClientCommandManager.literal("nova")
+                    .executes(context -> {
+                        Minecraft.getInstance().setScreen(new NovaClickGuiScreen());
+                        return 1;
+                    }));
+            dispatcher.register(ClientCommandManager.literal("novaclient")
+                    .executes(context -> {
+                        Minecraft.getInstance().setScreen(new NovaClickGuiScreen());
+                        return 1;
+                    }));
+        });
         KeyMapping.Category category=KeyMapping.Category.register(Identifier.fromNamespaceAndPath(MOD_ID,"main"));
         openGuiKey=KeyMappingHelper.registerKeyMapping(new KeyMapping("key.nova.open_gui",
                 InputConstants.Type.KEYBOARD,InputConstants.KEY_RALT,category));
@@ -60,7 +74,7 @@ public final class NovaClient implements ClientModInitializer {
         });
         HudElementRegistry.attachElementBefore(VanillaHudElements.CHAT,
                 Identifier.fromNamespaceAndPath(MOD_ID,"utility_hud"),NovaClient::renderHud);
-        LOGGER.info("Nova Utility Client 0.8.0 initialized. Right Alt menu; R Auto Tool; J Radar; K Minimap; T Target HUD.");
+        LOGGER.info("Nova Utility Client 0.9.0 initialized. Open menu with Right Alt, /nova or /novaclient; R Auto Tool; J Radar; K Minimap; T Target HUD.");
     }
 
     private static void renderHud(GuiGraphicsExtractor graphics,DeltaTracker deltaTracker) {
