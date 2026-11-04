@@ -18,7 +18,7 @@ public final class NovaConfig {
     public static boolean toggleSprint, lightTheme, autoMine, autoFarm, antiAfk, showEntityRadar, autoTool;
     public static boolean showMinimap, showTargetHud, showChunkBorders, maxBrightness;
     public static int entityRadarRange=24, accentColorIndex=0, minimapZoom=1;
-    public static boolean minimapRotate=true;
+    public static boolean minimapRotate=true, minimapCircle=false;\n    public static int minimapRadius=6, minimapOpacity=78, minimapCorner=1;
     public static boolean hasWaypoint, hasBuildAnchor;
     public static double waypointX, waypointY, waypointZ;
     public static int buildX, buildY, buildZ;
@@ -50,6 +50,10 @@ public final class NovaConfig {
             showChunkBorders=bool(p,"world.chunk_borders",showChunkBorders); maxBrightness=bool(p,"visuals.max_brightness",maxBrightness);
             minimapZoom=Math.max(1,Math.min(4,integer(p,"visuals.minimap_zoom",minimapZoom)));
             minimapRotate=bool(p,"visuals.minimap_rotate",minimapRotate);
+            minimapCircle=bool(p,"visuals.minimap_circle",minimapCircle);
+            minimapRadius=Math.max(4,Math.min(9,integer(p,"visuals.minimap_radius",minimapRadius)));
+            minimapOpacity=Math.max(25,Math.min(100,integer(p,"visuals.minimap_opacity",minimapOpacity)));
+            minimapCorner=Math.floorMod(integer(p,"visuals.minimap_corner",minimapCorner),4);
             lightTheme=bool(p,"settings.light_theme",lightTheme); hasWaypoint=bool(p,"waypoint.saved",hasWaypoint);
             waypointX=decimal(p,"waypoint.x",0); waypointY=decimal(p,"waypoint.y",0); waypointZ=decimal(p,"waypoint.z",0);
             hasBuildAnchor=bool(p,"building.anchor_saved",hasBuildAnchor);
@@ -77,6 +81,10 @@ public final class NovaConfig {
         p.setProperty("world.chunk_borders",Boolean.toString(showChunkBorders)); p.setProperty("visuals.max_brightness",Boolean.toString(maxBrightness));
         p.setProperty("visuals.minimap_zoom",Integer.toString(minimapZoom));
         p.setProperty("visuals.minimap_rotate",Boolean.toString(minimapRotate));
+        p.setProperty("visuals.minimap_circle",Boolean.toString(minimapCircle));
+        p.setProperty("visuals.minimap_radius",Integer.toString(minimapRadius));
+        p.setProperty("visuals.minimap_opacity",Integer.toString(minimapOpacity));
+        p.setProperty("visuals.minimap_corner",Integer.toString(minimapCorner));
         p.setProperty("waypoint.saved",Boolean.toString(hasWaypoint)); p.setProperty("waypoint.x",Double.toString(waypointX));
         p.setProperty("waypoint.y",Double.toString(waypointY)); p.setProperty("waypoint.z",Double.toString(waypointZ));
         p.setProperty("building.anchor_saved",Boolean.toString(hasBuildAnchor)); p.setProperty("building.x",Integer.toString(buildX));

@@ -220,23 +220,39 @@ public final class NovaClient implements ClientModInitializer {
     }
     private static void renderMinimap(GuiGraphicsExtractor graphics,Minecraft client) {
         if(client.player==null || client.level==null) return;
-        final int radius=6, tile=7, mapSize=(radius*2+1)*tile;
+        final int radius=Math.max(4,Math.min(9,NovaConfig.minimapRadius));
+        final int tile=7, mapSize=(radius*2+1)*tile;
         final int zoom=Math.max(1,Math.min(4,NovaConfig.minimapZoom));
-        int left=client.getWindow().getGuiScaledWidth()-mapSize-12, top=18;
+        int screenW=client.getWindow().getGuiScaledWidth();
+        int screenH=client.getWindow().getGuiScaledHeight();
+        int left,top;
+        switch(Math.floorMod(NovaConfig.minimapCorner,4)) {
+            case 0 -> { left=12; top=18; }
+            case 2 -> { left=12; top=screenH-mapSize-42; }
+            case 3 -> { left=screenW-mapSize-12; top=screenH-mapSize-42; }
+            default -> { left=screenW-mapSize-12; top=18; }
+        }
         int px=client.player.blockPosition().getX(), py=client.player.blockPosition().getY();
         int pz=client.player.blockPosition().getZ();
         double yaw=Math.toRadians(client.player.getYRot());
         double sin=Math.sin(yaw), cos=Math.cos(yaw);
-        graphics.fill(left-5,top-5,left+mapSize+5,top+mapSize+20,0xC9101420);
+        int opacity=Math.max(25,Math.min(100,NovaConfig.minimapOpacity));
+        int alpha=opacity*255/100;
+        graphics.fill(left-5,top-5,left+mapSize+5,top+mapSize+30,withAlpha(0xFF101420,alpha));
         graphics.fill(left-5,top-5,left+mapSize+5,top-3,NovaConfig.accentColor());
-        graphics.text(client.font,"NOVA MAP  ·  x"+zoom,left,top+mapSize+7,0xFFE6EAF4,true);
-        graphics.text(client.font,"N",left+mapSize/2-2,top-15,0xFFFFFFFF,true);
+        String biome=client.level.getBiome(client.player.blockPosition()).unwrapKey()
+                .map(key->key.identifier().getPath().replace('_',' ')).orElse("unknown");
+        graphics.text(client.font,"NOVA MAP  ·  x"+zoom,left,top+mapSize+6,0xFFE6EAF4,true);
+        graphics.text(client.font,"XYZ "+px+" "+py+" "+pz,left,top+mapSize+18,0xFFCED6E5,false);
+        graphics.text(client.font,biome,left+mapSize-5-client.font.width(biome),top+mapSize+18,0xFF9FADC4,false);
+        graphics.text(client.font,NovaConfig.minimapRotate?"↑":"N",left+mapSize/2-2,top-15,0xFFFFFFFF,true);
 
         for(int dz=-radius;dz<=radius;dz++) for(int dx=-radius;dx<=radius;dx++) {
+            if(NovaConfig.minimapCircle && dx*dx+dz*dz>radius*radius) continue;
             double worldOffsetX=dx*zoom;
             double worldOffsetZ=dz*zoom;
             if(NovaConfig.minimapRotate) {
-                // The top of a rotating map points in the player's look direction.
+                // Rotating mode keeps the player's facing direction at the top.
                 worldOffsetX=dx*zoom*cos + dz*zoom*sin;
                 worldOffsetZ=dx*zoom*sin - dz*zoom*cos;
             }
@@ -248,7 +264,7 @@ public final class NovaClient implements ClientModInitializer {
                 sample=new BlockPos(worldX,py-depth,worldZ);
                 state=client.level.getBlockState(sample);
             }
-            int color=mapBlockColor(state.getBlock().getName().getString());
+            int color=withAlpha(mapBlockColor(state.getBlock().getName().getString()),alpha);
             int x=left+(dx+radius)*tile, y=top+(dz+radius)*tile;
             graphics.fill(x,y,x+tile-1,y+tile-1,color);
             if(NovaConfig.showChunkBorders && (Math.floorMod(worldX,16)==0 || Math.floorMod(worldZ,16)==0)) {
@@ -257,26 +273,6 @@ public final class NovaClient implements ClientModInitializer {
             }
         }
 
-        // Nearby living entities are plotted using their real world positions.
-        for(var entity:client.level.entitiesForRendering()) {
-            if(entity==client.player || !entity.isAlive()) continue;
-            double dx=entity.getX()-client.player.getX();
-            double dz=entity.getZ()-client.player.getZ();
-            double localX=dx, localZ=dz;
-            if(NovaConfig.minimapRotate) {
-                localX=dx*cos + dz*sin;
-                localZ=dx*sin - dz*cos;
-            }
-            int cellX=(int)Math.round(localX/zoom);
-            int cellZ=(int)Math.round(localZ/zoom);
-            if(Math.abs(cellX)>radius || Math.abs(cellZ)>radius) continue;
-            int x=left+(cellX+radius)*tile+2;
-            int y=top+(cellZ+radius)*tile+2;
-            int marker=entity instanceof net.minecraft.world.entity.player.Player ? 0xFF69C7FF : 0xFFFFB45A;
-            graphics.fill(x,y,x+3,y+3,marker);
-        }
-
-        // Saved waypoint marker; it is hidden when it falls outside the current map.
         if(NovaConfig.hasWaypoint) {
             double dx=NovaConfig.waypointX-client.player.getX();
             double dz=NovaConfig.waypointZ-client.player.getZ();
@@ -287,25 +283,21 @@ public final class NovaClient implements ClientModInitializer {
             }
             int cellX=(int)Math.round(localX/zoom);
             int cellZ=(int)Math.round(localZ/zoom);
-            if(Math.abs(cellX)<=radius && Math.abs(cellZ)<=radius) {
+            if(Math.abs(cellX)<=radius && Math.abs(cellZ)<=radius
+                    && (!NovaConfig.minimapCircle || cellX*cellX+cellZ*cellZ<=radius*radius)) {
                 int x=left+(cellX+radius)*tile+1;
                 int y=top+(cellZ+radius)*tile+1;
                 graphics.fill(x,y,x+5,y+5,0xFFFFD45C);
             }
         }
 
-        // Player marker and facing arrow stay above the terrain and entity layers.
         int centerX=left+radius*tile,centerY=top+radius*tile;
         graphics.fill(centerX+1,centerY+1,centerX+tile-1,centerY+tile-1,0xFFFFFFFF);
-        if(NovaConfig.minimapRotate) {
-            graphics.fill(centerX+2,centerY-2,centerX+tile-2,centerY+2,NovaConfig.accentColor());
-        } else {
-            int direction=(int)Math.floorMod(Math.round(client.player.getYRot()/45.0F),8);
-            int[][] offsets={{0,-3},{2,-2},{3,0},{2,2},{0,3},{-2,2},{-3,0},{-2,-2}};
-            int[] arrow=offsets[direction];
-            graphics.fill(centerX+3+arrow[0],centerY+3+arrow[1],
-                    centerX+4+arrow[0],centerY+4+arrow[1],NovaConfig.accentColor());
-        }
+        graphics.fill(centerX+2,centerY-2,centerX+tile-2,centerY+2,NovaConfig.accentColor());
+    }
+
+    private static int withAlpha(int color,int alpha) {
+        return (Math.max(0,Math.min(255,alpha))<<24) | (color & 0x00FFFFFF);
     }
 
     private static int mapBlockColor(String rawName) {

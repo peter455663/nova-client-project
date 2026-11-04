@@ -64,6 +64,10 @@ public final class NovaCategoryScreen extends Screen {
                 toggle("Blokk minimap",()->NovaConfig.showMinimap,()->NovaConfig.showMinimap=!NovaConfig.showMinimap);
                 action("Minimap forgatás",()->NovaConfig.minimapRotate?"ROTÁLÓ":"ÉSZAK FELÉ",()->NovaConfig.minimapRotate=!NovaConfig.minimapRotate);
                 action("Minimap nagyítás",()->"x"+NovaConfig.minimapZoom,()->NovaConfig.minimapZoom=NovaConfig.minimapZoom>=4?1:NovaConfig.minimapZoom+1);
+                action("Minimap méret",()->Integer.toString(NovaConfig.minimapRadius),()->NovaConfig.minimapRadius=NovaConfig.minimapRadius>=9?4:NovaConfig.minimapRadius+1);
+                action("Minimap átlátszóság",()->NovaConfig.minimapOpacity+"%",()->NovaConfig.minimapOpacity=NovaConfig.minimapOpacity>=100?25:NovaConfig.minimapOpacity+15);
+                toggle("Kör alakú minimap",()->NovaConfig.minimapCircle,()->NovaConfig.minimapCircle=!NovaConfig.minimapCircle);
+                action("Minimap képernyősarok",()->switch(NovaConfig.minimapCorner){case 0->"BAL FENT";case 2->"BAL LENT";case 3->"JOBB LENT";default->"JOBB FENT";},()->NovaConfig.minimapCorner=(NovaConfig.minimapCorner+1)%4);
             }
             case MOVEMENT->toggle("Futás kapcsoló",()->NovaConfig.toggleSprint,()->NovaConfig.toggleSprint=!NovaConfig.toggleSprint);
             case PLAYER->{
