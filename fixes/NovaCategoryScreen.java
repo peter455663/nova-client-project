@@ -50,6 +50,7 @@ public final class NovaCategoryScreen extends Screen {
                 toggle("Active module list",()->NovaConfig.showArrayList,()->NovaConfig.showArrayList=!NovaConfig.showArrayList);
                 toggle("Custom crosshair",()->NovaConfig.customCrosshair,()->NovaConfig.customCrosshair=!NovaConfig.customCrosshair);
                 toggle("Ping",()->NovaConfig.showPing,()->NovaConfig.showPing=!NovaConfig.showPing);
+                toggle("Target HUD",()->NovaConfig.showTargetHud,()->NovaConfig.showTargetHud=!NovaConfig.showTargetHud);
             }
             case VISUALS->{
                 toggle("Target block information",()->NovaConfig.showTargetBlock,()->NovaConfig.showTargetBlock=!NovaConfig.showTargetBlock);
@@ -59,10 +60,12 @@ public final class NovaCategoryScreen extends Screen {
                 action("Clear waypoint",()->NovaConfig.hasWaypoint?"SAVED":"EMPTY",()->NovaConfig.hasWaypoint=false);
                 toggle("Nearby entity radar",()->NovaConfig.showEntityRadar,()->NovaConfig.showEntityRadar=!NovaConfig.showEntityRadar);
                 action("Radar range",()->NovaConfig.entityRadarRange+" blocks",()->NovaConfig.entityRadarRange=NovaConfig.entityRadarRange>=64?8:NovaConfig.entityRadarRange+8);
+                toggle("Block minimap",()->NovaConfig.showMinimap,()->NovaConfig.showMinimap=!NovaConfig.showMinimap);
             }
             case MOVEMENT->toggle("Toggle sprint",()->NovaConfig.toggleSprint,()->NovaConfig.toggleSprint=!NovaConfig.toggleSprint);
             case PLAYER->{
                 toggle("Auto Tool (best hotbar tool)",()->NovaConfig.autoTool,()->NovaConfig.autoTool=!NovaConfig.autoTool);
+                toggle("Max vanilla brightness",()->NovaConfig.maxBrightness,()->NovaConfig.maxBrightness=!NovaConfig.maxBrightness);
                 action("Auto Tool keybind",()->"R",()->{});
             }
             case WORLD->{
@@ -71,6 +74,8 @@ public final class NovaCategoryScreen extends Screen {
                 toggle("Visible entity count",()->NovaConfig.showEntityCount,()->NovaConfig.showEntityCount=!NovaConfig.showEntityCount);
                 toggle("Ping",()->NovaConfig.showPing,()->NovaConfig.showPing=!NovaConfig.showPing);
                 action("Save waypoint here",()->NovaConfig.hasWaypoint?"SAVED":"NOT SET",NovaCategoryScreen::saveWaypoint);
+                toggle("Minimap",()->NovaConfig.showMinimap,()->NovaConfig.showMinimap=!NovaConfig.showMinimap);
+                toggle("Chunk grid on minimap",()->NovaConfig.showChunkBorders,()->NovaConfig.showChunkBorders=!NovaConfig.showChunkBorders);
             }
             case BUILDING->{
                 toggle("Build guide HUD",()->NovaConfig.showBuildGuide,()->NovaConfig.showBuildGuide=!NovaConfig.showBuildGuide);
@@ -135,10 +140,10 @@ public final class NovaCategoryScreen extends Screen {
     private String description(){
         return switch(category){
             case HUD->"Toggle the information widgets shown on your screen.";
-            case VISUALS->"Waypoints, target block details and a nearby entity radar (J toggles radar).";
+            case VISUALS->"Waypoints, a local block minimap, chunk grid and a nearby entity radar (J toggles radar).";
             case MOVEMENT->"Movement preferences; no server protection bypass.";
-            case PLAYER->"Auto Tool selects the strongest normal hotbar tool for the targeted block (R toggles it).";
-            case WORLD->"Information about local world time, weather and entities.";
+            case PLAYER->"Auto Tool selects a suitable hotbar tool; max brightness changes only your client setting.";
+            case WORLD->"World time, weather, entities, minimap and chunk grid.";
             case BUILDING->"Prebuilt structures use server commands and require OP permission.";
             case FARMING->"Auto harvest works when you aim at a fully grown vanilla crop.";
             case MINING->"Auto mine holds the normal attack key on the block you target.";
