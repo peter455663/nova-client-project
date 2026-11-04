@@ -17,7 +17,8 @@ public final class NovaConfig {
     public static boolean showWorldTime, showWeather, showEntityCount, showPing;
     public static boolean toggleSprint, lightTheme, autoMine, autoFarm, antiAfk, showEntityRadar, autoTool;
     public static boolean showMinimap, showTargetHud, showChunkBorders, maxBrightness;
-    public static int entityRadarRange=24, accentColorIndex=0, minimapZoom=1;\n    public static boolean minimapRotate=true;
+    public static int entityRadarRange=24, accentColorIndex=0, minimapZoom=1;
+    public static boolean minimapRotate=true;
     public static boolean hasWaypoint, hasBuildAnchor;
     public static double waypointX, waypointY, waypointZ;
     public static int buildX, buildY, buildZ;
@@ -43,7 +44,9 @@ public final class NovaConfig {
             showEntityRadar=bool(p,"world.entity_radar",showEntityRadar); entityRadarRange=Math.max(8,Math.min(64,integer(p,"world.entity_radar_range",entityRadarRange)));
             autoTool=bool(p,"player.auto_tool",autoTool); accentColorIndex=Math.floorMod(integer(p,"settings.accent_color",accentColorIndex),5);
             showMinimap=bool(p,"visuals.minimap",showMinimap); showTargetHud=bool(p,"hud.target",showTargetHud);
-            showChunkBorders=bool(p,"world.chunk_borders",showChunkBorders); maxBrightness=bool(p,"visuals.max_brightness",maxBrightness);\n            minimapZoom=Math.max(1,Math.min(4,integer(p,"visuals.minimap_zoom",minimapZoom)));\n            minimapRotate=bool(p,"visuals.minimap_rotate",minimapRotate);
+            showChunkBorders=bool(p,"world.chunk_borders",showChunkBorders); maxBrightness=bool(p,"visuals.max_brightness",maxBrightness);
+            minimapZoom=Math.max(1,Math.min(4,integer(p,"visuals.minimap_zoom",minimapZoom)));
+            minimapRotate=bool(p,"visuals.minimap_rotate",minimapRotate);
             lightTheme=bool(p,"settings.light_theme",lightTheme); hasWaypoint=bool(p,"waypoint.saved",hasWaypoint);
             waypointX=decimal(p,"waypoint.x",0); waypointY=decimal(p,"waypoint.y",0); waypointZ=decimal(p,"waypoint.z",0);
             hasBuildAnchor=bool(p,"building.anchor_saved",hasBuildAnchor);
@@ -68,7 +71,9 @@ public final class NovaConfig {
         p.setProperty("world.entity_radar",Boolean.toString(showEntityRadar)); p.setProperty("world.entity_radar_range",Integer.toString(entityRadarRange));
         p.setProperty("player.auto_tool",Boolean.toString(autoTool)); p.setProperty("settings.accent_color",Integer.toString(accentColorIndex));
         p.setProperty("visuals.minimap",Boolean.toString(showMinimap)); p.setProperty("hud.target",Boolean.toString(showTargetHud));
-        p.setProperty("world.chunk_borders",Boolean.toString(showChunkBorders)); p.setProperty("visuals.max_brightness",Boolean.toString(maxBrightness));\n        p.setProperty("visuals.minimap_zoom",Integer.toString(minimapZoom));\n        p.setProperty("visuals.minimap_rotate",Boolean.toString(minimapRotate));
+        p.setProperty("world.chunk_borders",Boolean.toString(showChunkBorders)); p.setProperty("visuals.max_brightness",Boolean.toString(maxBrightness));
+        p.setProperty("visuals.minimap_zoom",Integer.toString(minimapZoom));
+        p.setProperty("visuals.minimap_rotate",Boolean.toString(minimapRotate));
         p.setProperty("waypoint.saved",Boolean.toString(hasWaypoint)); p.setProperty("waypoint.x",Double.toString(waypointX));
         p.setProperty("waypoint.y",Double.toString(waypointY)); p.setProperty("waypoint.z",Double.toString(waypointZ));
         p.setProperty("building.anchor_saved",Boolean.toString(hasBuildAnchor)); p.setProperty("building.x",Integer.toString(buildX));
