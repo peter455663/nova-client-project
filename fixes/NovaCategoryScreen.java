@@ -138,7 +138,7 @@ public final class NovaCategoryScreen extends Screen {
 
     private static void notifyPlayer(String message) {
         Minecraft mc=Minecraft.getInstance();
-        if(mc.player!=null) mc.player.displayClientMessage(Component.literal("[Nova] "+message),false);
+        if(mc.gui!=null) mc.gui.setOverlayMessage(Component.literal("[Nova] "+message),false);
     }
 
     private void toggle(String name,Supplier<Boolean> get,Runnable action){controls.add(new Control(name,()->get.get()?"ON":"OFF",action));}
