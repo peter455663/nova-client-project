@@ -24,11 +24,13 @@ public final class NovaAutomation {
     private static int autoToolOriginalSlot=-1;
     private static boolean autoToolChangedSlot;
     private static String buildStatus="Idle";
+    private static Double originalGamma;
 
     private NovaAutomation() {}
 
     public static void tick(Minecraft mc) {
         tickCounter++;
+        updateBrightness(mc);
         if(mc.player==null || mc.level==null || mc.getConnection()==null) {
             releaseAutomationKeys(mc);
             return;
@@ -69,6 +71,17 @@ public final class NovaAutomation {
                 }
             }
             if(BUILD_COMMANDS.isEmpty() && buildStatus.startsWith("Building:")) buildStatus="Build commands sent; check server feedback";
+        }
+    }
+
+    private static void updateBrightness(Minecraft mc) {
+        if(mc.options==null) return;
+        if(NovaConfig.maxBrightness) {
+            if(originalGamma==null) originalGamma=mc.options.gamma().get();
+            if(mc.options.gamma().get()<1.0D) mc.options.gamma().set(1.0D);
+        } else if(originalGamma!=null) {
+            mc.options.gamma().set(originalGamma);
+            originalGamma=null;
         }
     }
 
